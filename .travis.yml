@@ -9,7 +9,7 @@ python:
 install:
   # - pip install pytest
   - pip install pipreqs
-  - pipreqs .
+  - pipreqs --debug --ignore practicum-atp,.git,.pytest_cache,.vscode,__pycache__ .
   - pip install -r requirements.txt
 
 # before_script:
