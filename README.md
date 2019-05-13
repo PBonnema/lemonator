@@ -5,6 +5,16 @@ Team members:
 - Mike Hilhorst
 - Wiebe van Breukelen
 
+## Installation
+To pull all the required dependencies, please run the following commands within the shell:"
+
+```bash
+
+git submodule init
+git submodule update
+
+```
+
 ### Branches
 - The code within the **master** branch is considered final. This means that it is well tested and reviewed by all the teammembers.
 - The **development** branch will contain code that is considered as work in progress.
