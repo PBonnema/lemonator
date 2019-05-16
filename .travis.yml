@@ -13,6 +13,8 @@ install:
   - pip install -r requirements.txt
   - chmod +x prepare.sh
   - bash ./prepare.sh
+  - sudo apt install arm-none-eabi-gcc binutils
+  - sudo apt install make cmake
 
 # before_script:
 
