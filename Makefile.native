@@ -15,7 +15,8 @@ TARGET            := native
 £ PROJECT_CPP_FLAGS += -fexceptions -frtti
 
 # add the RS-232 library
-SEARCH            += $(RELATIVE)/../RS-232
+# SEARCH            += $(RELATIVE)/../RS-232
+SEARCH 				+= $(RELATIVE)/library/RS-232
 
 # defer to the Makefile.shared
 include           $(RELATIVE)/Makefile.link

@@ -2,7 +2,7 @@
 #define _LEMONATOR_PROXY_H
 
 #include "lemonator_interface.hpp"
-#include "rs232.h"
+#include "RS-232/rs232.h"
 #include <iostream>
 
 class serial_port {

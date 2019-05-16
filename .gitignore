@@ -12,6 +12,10 @@
 *.lo
 *.o
 *.obj
+*.bin
+*.elf
+*.ld
+*.map
 
 # Precompiled Headers
 *.gch
