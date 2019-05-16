@@ -1,0 +1,21 @@
+#############################################################################
+#
+# makefile.native common settings for Native projects
+#
+# (c) Wouter van Ooijen (www.voti.nl) 2017
+#
+# This file is in the public domain.
+# 
+#############################################################################
+
+# settings for native (PC) projects
+TARGET            := native
+
+# enable exeptions (disabled by default by bmptk)
+£ PROJECT_CPP_FLAGS += -fexceptions -frtti
+
+# add the RS-232 library
+SEARCH            += $(RELATIVE)/../RS-232
+
+# defer to the Makefile.shared
+include           $(RELATIVE)/Makefile.link
