@@ -7,9 +7,8 @@ python:
 
 # command to install dependencies
 install:
-  # - pip install pytest
   - pip install pipreqs
-  - pipreqs --debug --ignore practicum-atp,.git,.pytest_cache,.vscode,__pycache__ .
+  - pipreqs --debug --ignore practicum-atp,.git,.vscode,__pycache__ .
   - pip install -r requirements.txt
   - chmod +x prepare.sh
   - bash ./prepare.sh
@@ -19,7 +18,7 @@ install:
 # before_script:
 
 # command to run tests
-script: pytest
+script: python -m unittest
 
 # after_success:
 # after_failure:

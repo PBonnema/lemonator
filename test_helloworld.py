@@ -1,10 +1,38 @@
-# content of test_sample.py
-def inc(x):
-    return x + 1
+from unittest import TestCase, main
+from unittest.mock import Mock
 
+class A:
+    def doWork(self):
+        pass
 
-def test_answer_correct():
-    assert inc(2) == 3
+class B:
+    def __init__(self, a):
+        self.__a = a
 
-def test_answer_fail():
-    assert inc(3) == 5
+    def doSomething(self):
+        self.__a.doWork()
+
+class MyTestCase(TestCase):
+    def test_answer_correct(self):
+        # Arrange
+        a = Mock()
+        a.doWork = Mock()
+        b = B(a)
+
+        # Act
+        b.doSomething()
+
+        # Assert
+        a.doWork.assert_called_once()
+
+    def test_answer_incorrect(self):
+        # Arrange
+        a = Mock()
+        a.doWork = Mock()
+        b = B(a)
+
+        # Act
+        b.doSomething()
+
+        # Assert
+        a.doWork.assert_called_once_with(1)
