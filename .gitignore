@@ -1,3 +1,8 @@
+*.elf
+*.map
+*.bin
+*.ld
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

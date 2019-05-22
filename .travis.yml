@@ -10,10 +10,6 @@ install:
   - pip install pipreqs
   - pipreqs --debug --ignore practicum-atp,.git,.vscode,__pycache__ .
   - pip install -r requirements.txt
-  - chmod +x prepare.sh
-  - bash ./prepare.sh
-  - sudo apt install arm-none-eabi-gcc binutils
-  - sudo apt install make cmake
 
 # before_script:
 
