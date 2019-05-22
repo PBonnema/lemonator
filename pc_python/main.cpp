@@ -1,0 +1,1 @@
+// dummy main to convince the script that this is a bmptk project

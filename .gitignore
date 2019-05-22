@@ -17,6 +17,10 @@
 *.lo
 *.o
 *.obj
+*.bin
+*.elf
+*.ld
+*.map
 
 # Precompiled Headers
 *.gch
@@ -168,3 +172,4 @@ dmypy.json
 
 # Simulator files
 simulator/
+practicum-atp/

@@ -1,0 +1,45 @@
+#############################################################################
+#
+# makefile.shared common settings and link to bmptk/makefile.inc
+#
+# (c) Wouter van Ooijen (www.voti.nl) 2017
+#
+# This file is in the public domain.
+# 
+#############################################################################
+
+# the location of the ti software directory
+TI-SOFTWARE       := C:/ti-software
+
+# add Catch
+SEARCH            += $(TI-SOFTWARE)/Catch/include
+
+# add hwlib
+HWLIB             ?= $(TI-SOFTWARE)/hwlib
+include           $(HWLIB)/Makefile.inc
+
+# add the RS-232 library
+RS232            := $(TI-SOFTWARE)/rs-232
+INCLUDE          += $(RS232)
+
+# add the rtos
+#RTOS              ?= $(TI-SOFTWARE)/rtos
+#include           $(RTOS)/Makefile.inc
+
+# add the lemonator files
+SEARCH           += ../library
+HEADERS          += sr04.hpp tcs3200.hpp ds1820.hpp invert.hpp
+HEADERS          += lemonator_interface.hpp 
+HEADERS          += lemonator_hardware.hpp
+HEADERS          += lemonator_server.hpp
+HEADERS          += lemonator_dummy.hpp
+HEADERS          += lemonator_proxy.hpp
+
+# add pybind
+SEARCH           += $(TI-SOFTWARE)/pybind11/include
+
+# set BMPTK to the bmptk subdirectory
+BMPTK            := C:/ti-software/bmptk
+
+# Defer to the bmptk/Makefile.inc to do the work
+include $(BMPTK)/Makefile.inc
