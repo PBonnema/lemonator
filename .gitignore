@@ -164,7 +164,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# Simulator files
-simulator/
-practicum-atp/
