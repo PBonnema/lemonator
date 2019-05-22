@@ -9,14 +9,12 @@ class BaseClass():
         self.simulator = sim
         #self.simulator = sim
 
-    @classmethod
     def update() -> None:
-        object.update()
+        self.object.update()
 
-    @classmethod
     def printDir() -> None:
         print(f"\nObject: " + str(object) + "\n")
-        for e in dir(object):
+        for e in dir(self.object):
             if not (e.startswith('__') and e.endswith('__')):
                 print(e)
         print("\n==========================\n")
@@ -70,14 +68,12 @@ class Effector(BaseClass):
 
 class LED(Effector):
     #Switches between the on and off state
-    @classmethod
     def toggle() -> None:
-        object.toggle()
+        self.object.toggle()
 
     #Returns the current colour of the led
-    @classmethod
     def getColour() -> bool:
-        return object.getColour()
+        return self.object.getColour()
 
 class LCD(Effector):
     #Returns data of the currently on the lcd
