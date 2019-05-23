@@ -111,7 +111,6 @@ if __name__ == "__main__":
     def shutValves() -> None:
         ValveA.switchOff()
         ValveB.switchOff()
-
     
     print("\n==============================================================\n")
     

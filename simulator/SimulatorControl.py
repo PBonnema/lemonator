@@ -1,5 +1,4 @@
-import Simulator 
-import Effector
+import Simulator
 import time
 
 #Superclass with Constructor and Update function
@@ -9,10 +8,10 @@ class BaseClass():
         self.simulator = sim
         #self.simulator = sim
 
-    def update() -> None:
+    def update(self) -> None:
         self.object.update()
 
-    def printDir() -> None:
+    def printDir(self) -> None:
         print(f"\nObject: " + str(object) + "\n")
         for e in dir(self.object):
             if not (e.startswith('__') and e.endswith('__')):
@@ -24,10 +23,10 @@ class Vessel(BaseClass):
         super(Vessel, self).__init__(sim)
         self.object = self.simulator._Simulator__plant._vessels[objectID]
         
-    def flowIn(amount, colour) -> None:
+    def flowIn(self, amount, colour) -> None:
         self.object.flowIn(amount, colour)
 
-    def heat(state: bool):
+    def heat(self, state: bool):
         self.object.heat()
 
     def setPresence(self, presence: bool):
@@ -36,16 +35,16 @@ class Vessel(BaseClass):
     def getFluidAmount(self) -> int:
         return self.object.getFluidAmount()
 
-    def getColour() -> float:
+    def getColour(self) -> float:
         return self.object.getColour()
 
-    def getTemperature() -> float:
+    def getTemperature(self) -> float:
         return self.object.getTemperature()
 
-    def getPresence() -> bool:
+    def getPresence(self) -> bool:
         return self.object.getPresence()
 
-    def flow() -> None:
+    def flow(self) -> None:
         return self.object.flow()
         
 class Effector(BaseClass):
@@ -64,15 +63,15 @@ class Effector(BaseClass):
 
     #Returns the Effector state
     def isOn(self) -> bool:
-        return object.isOn()
+        return self.object.isOn()
 
 class LED(Effector):
     #Switches between the on and off state
-    def toggle() -> None:
+    def toggle(self) -> None:
         self.object.toggle()
 
     #Returns the current colour of the led
-    def getColour() -> bool:
+    def getColour(self) -> bool:
         return self.object.getColour()
 
 class LCD(Effector):
@@ -135,7 +134,7 @@ class Keypad(Sensor):
                 return s
             s += charBuffer
 
-    def readBuffer() -> str:
+    def readBuffer(self) -> str:
         s = ""
         charBuffer = ''
         self.push('|')
