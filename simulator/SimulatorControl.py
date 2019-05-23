@@ -153,11 +153,7 @@ class Factory:
         if not issubclass(instType, BaseClass):
             raise TypeError("Class instance" + str(instType) + " does not have a valid base class.")
 
-        #targetclass = cls.capitalize()
         inst = globals()[instType.__name__](self.simulator, *instArgs)
-
-        #if not isinstance(inst, BaseClass):
-        #    raise ValueError("Class instance" + str(instType) + " does not have a valid base class.")
         
         return inst
 
