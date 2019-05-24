@@ -6,7 +6,6 @@ class BaseClass():
     def __init__(self, controller : Controller):
         self.object = None
         self.Controller = controller
-        #self.Controller = controller
 
     def update(self) -> None:
         self.object.update()
@@ -153,15 +152,8 @@ class Factory:
 
     def make(self, instType, *instArgs):
         if not issubclass(instType, BaseClass):
-            raise TypeError("Class instance" + str(instType) + " does not have a valid base class.")
+            raise TypeError(f"Class instance {instType.__name__} does not have a valid base class.")
 
-        #targetclass = cls.capitalize()
-        inst = globals()[instType.__name__](self.Controller, *instArgs)
+        inst = instType(self.Controller, *instArgs)
 
-        #if not isinstance(inst, BaseClass):
-        #    raise ValueError("Class instance" + str(instType) + " does not have a valid base class.")
-
-        
         return inst
-
-
