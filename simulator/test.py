@@ -21,4 +21,3 @@ class TestSimulatorControlFactory(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			factory.make(TempClass, 'a')
 
-	unittest.main()
