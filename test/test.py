@@ -6,6 +6,106 @@ import re
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 
+class TestBaseClass(TestCase):
+	def test_can_create(self):
+		# Arrange
+		object = Mock()
+		controller = Mock()
+
+		# Act
+		instance = SimulatorInterface.BaseClass(object, controller)
+
+		# Assert
+		self.assertIs(object, instance.object)
+		self.assertIs(controller, instance.controller)
+
+	def test_update_calls_update_on_object(self):
+		# Arrange
+		object = Mock()
+		controller = Mock()
+		target = SimulatorInterface.BaseClass(object, controller)
+
+		# Act
+		target.update()
+
+		# Assert
+		object.update.assert_called_once()
+		
+class TestEffector(TestCase):
+	def test_can_create(self):
+		# Arrange
+		objectId = 'objId'
+		object = Mock()
+		controller = Mock()
+		controller._Controller__effectors = { objectId: object }
+
+		# Act
+		instance = SimulatorInterface.Effector(controller, objectId)
+
+		# Assert
+		self.assertIs(object, instance.object)
+		self.assertIs(controller, instance.controller)
+
+	def test_switchOn_calls_switchOn_on_object(self):
+		# Arrange
+		objectId = 'objId'
+		object = Mock()
+		controller = Mock()
+		controller._Controller__effectors = { objectId: object }
+		target = SimulatorInterface.Effector(controller, objectId)
+
+		# Act
+		target.switchOn()
+
+		# Assert
+		object.switchOn.assert_called_once()
+
+	def test_switchOn_calls_switchOff_on_object(self):
+		# Arrange
+		objectId = 'objId'
+		object = Mock()
+		controller = Mock()
+		controller._Controller__effectors = { objectId: object }
+		target = SimulatorInterface.Effector(controller, objectId)
+
+		# Act
+		target.switchOff()
+
+		# Assert
+		object.switchOff.assert_called_once()
+
+	def test_isOn_calls_isOn_on_object_and_returns_value(self):
+		# Arrange
+		isOnValue = True
+		objectId = 'objId'
+		object = Mock()
+		object.isOn = Mock(return_value=isOnValue)
+		controller = Mock()
+		controller._Controller__effectors = { objectId: object }
+		target = SimulatorInterface.Effector(controller, objectId)
+
+		# Act
+		result = target.isOn()
+
+		# Assert
+		object.isOn.assert_called_once()
+		self.assertEqual(result, True)
+
+class TestLED(TestCase):
+	def test_can_create(self):
+		# Arrange
+		objectId = 'objId'
+		object = Mock()
+		controller = Mock()
+		controller._Controller__effectors = { objectId: object }
+
+		# Act
+		instance = SimulatorInterface.LED(controller, objectId)
+
+		# Assert
+		self.assertIs(object, instance.object)
+		self.assertIs(controller, instance.controller)
+
 class TestSimulatorControlFactory(TestCase):
 	class BaseClassMagicMock(MagicMock):
 		def __subclasscheck__(self, subclass):
