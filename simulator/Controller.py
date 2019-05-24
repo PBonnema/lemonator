@@ -1,7 +1,7 @@
 from Effector import Effector
 from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor, KeyPad
 import sys
-
+import copy
 import SimulatorInterface
 
 from enum import Enum
@@ -27,36 +27,36 @@ class Controller:
         self._Controller__effectors = effectors
         self.state = States.IDLE
 
-        
-        control = SimulatorInterface.Factory(self)
+        Interface = SimulatorInterface        
+        control = Interface.Factory(self)
 
         #Creation of objects 
         #effectors 
-        self.PumpA       = control.make(SimulatorInterface.Effector, 'pumpA')
-        self.PumpB       = control.make(SimulatorInterface.Effector, 'pumpB')
-        self.ValveA      = control.make(SimulatorInterface.Effector, 'valveA')
-        self.ValveB      = control.make(SimulatorInterface.Effector, 'valveB')
-        self.Heater      = control.make(SimulatorInterface.Effector, 'heater')
+        self.PumpA       = control.make(Interface.Effector, 'pumpA')
+        self.PumpB       = control.make(Interface.Effector, 'pumpB')
+        self.ValveA      = control.make(Interface.Effector, 'valveA')
+        self.ValveB      = control.make(Interface.Effector, 'valveB')
+        self.Heater      = control.make(Interface.Effector, 'heater')
 
         #LED's    
-        self.LedRedA     = control.make(SimulatorInterface.LED, 'redA')
-        self.LedGreenA   = control.make(SimulatorInterface.LED, 'greenA')
-        self.LedRedB     = control.make(SimulatorInterface.LED, 'redB')
-        self.LedGreenB   = control.make(SimulatorInterface.LED, 'greenB')
-        self.LedGreenM   = control.make(SimulatorInterface.LED, 'greenM')
-        self.LedYellowM  = control.make(SimulatorInterface.LED, 'yellowM')
+        self.LedRedA     = control.make(Interface.LED, 'redA')
+        self.LedGreenA   = control.make(Interface.LED, 'greenA')
+        self.LedRedB     = control.make(Interface.LED, 'redB')
+        self.LedGreenB   = control.make(Interface.LED, 'greenB')
+        self.LedGreenM   = control.make(Interface.LED, 'greenM')
+        self.LedYellowM  = control.make(Interface.LED, 'yellowM')
 
         #Sensors
-        self.Colour      = control.make(SimulatorInterface.Sensor, 'colour')
-        self.Temperature = control.make(SimulatorInterface.Sensor, 'temp')
-        self.Level       = control.make(SimulatorInterface.Sensor, 'level')
-        self.Cup         = control.make(SimulatorInterface.Sensor, 'presence')
+        self.Colour      = control.make(Interface.Sensor, 'colour')
+        self.Temperature = control.make(Interface.Sensor, 'temp')
+        self.Level       = control.make(Interface.Sensor, 'level')
+        self.Cup         = control.make(Interface.PresenceSensor, 'presence')
 
         #UI
-        self.LCDDisplay  = control.make(SimulatorInterface.LCD, 'lcd')
+        self.LCDDisplay  = control.make(Interface.LCD, 'lcd')
         #There has to be data in the buffer, before you can write to the buffer(put & pushString)
         self.LCDDisplay.clear()
-        self.Keypad      = control.make(SimulatorInterface.Keypad, 'keypad')
+        self.Keypad      = control.make(Interface.Keypad, 'keypad')
 
 
     def update(self) -> None:
@@ -77,6 +77,7 @@ class Controller:
             self._Controller__effectors['lcd'].pushString("\t0000 Please place a cup.\n")
 
 
+    
     def testFunc(self, timestamp = 0) -> None:
         print(f"Colour:      " + str(self.Colour.readValue()))
         print(f"Level:       " + str(self.Level.readValue()))

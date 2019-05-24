@@ -20,4 +20,21 @@ class TestSimulatorControlFactory(unittest.TestCase):
 
 		with self.assertRaises(TypeError):
 			factory.make(TempClass, 'a')
+			
 
+		'''
+	 	self.assertEqual(controller.PumpA.isOn(), False)
+	 	self.assertEqual(controller.PumpB.isOn(), False)
+	 	self.assertEqual(controller.ValveA.isOn(), True)
+	 	self.assertEqual(controller.ValveB.isOn(), True)
+	 	self.assertEqual(controller.Heater.isOn(), False)
+
+	 	self.assertEqual(controller.LedRedA.isOn(), True)
+	 	self.assertEqual(controller.LedGreenA.isOn(), False)
+	 	self.assertEqual(controller.LedRedB.isOn(),	True)
+	 	self.assertEqual(controller.LedGreenB.isOn(), False)
+	 	self.assertEqual(controller.LedGreenM.isOn(), False)
+	 	self.assertEqual(controller.LedYellowM.isOn(), True)
+		'''
+
+			
