@@ -158,6 +158,7 @@ class Factory:
 
         #if not isinstance(inst, BaseClass):
         #    raise ValueError("Class instance" + str(instType) + " does not have a valid base class.")
+
         
         return inst
 
