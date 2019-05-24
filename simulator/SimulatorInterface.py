@@ -1,12 +1,12 @@
-import Simulator
+import Controller
 import time
 
 #Superclass with Constructor and Update function
 class BaseClass():      
-    def __init__(self, sim : Simulator):
+    def __init__(self, controller : Controller):
         self.object = None
-        self.simulator = sim
-        #self.simulator = sim
+        self.Controller = controller
+        #self.Controller = controller
 
     def update(self) -> None:
         self.object.update()
@@ -17,11 +17,12 @@ class BaseClass():
             if not (e.startswith('__') and e.endswith('__')):
                 print(e)
         print("\n==========================\n")
-
+            
+'''
 class Vessel(BaseClass): 
-    def __init__(self, sim : Simulator, objectID : str):
-        super(Vessel, self).__init__(sim)
-        self.object = self.simulator._Simulator__plant._vessels[objectID]
+    def __init__(self, controller : Controller, objectID : str):
+        super(Vessel, self).__init__(controller)
+        self.object = self.Controller._Controller__plant._vessels[objectID]
         
     def flowIn(self, amount, colour) -> None:
         self.object.flowIn(amount, colour)
@@ -46,12 +47,13 @@ class Vessel(BaseClass):
 
     def flow(self) -> None:
         return self.object.flow()
+'''
         
 class Effector(BaseClass):
-    def __init__(self, sim : Simulator, objectID : str):
-        super(Effector, self).__init__(sim)
+    def __init__(self, controller : Controller, objectID : str):
+        super(Effector, self).__init__(controller)
 
-        self.object = self.simulator._Simulator__plant._effectors[objectID]
+        self.object = self.Controller._Controller__effectors[objectID]
         
     #Sets the Effector state to on
     def switchOn(self) -> None:
@@ -93,9 +95,9 @@ class LCD(Effector):
         self.object.put(s)
 
 class Sensor(BaseClass):
-    def __init__(self, sim : Simulator, objectID : str):
-        super(Sensor, self).__init__(sim)
-        self.object = self.simulator._Simulator__plant._sensors[objectID]
+    def __init__(self, controller : Controller, objectID : str):
+        super(Sensor, self).__init__(controller)
+        self.object = self.Controller._Controller__sensors[objectID]
 
     #Returns the sensor data
     def readValue(self) -> float:
@@ -111,7 +113,7 @@ class PresenceSensor(Sensor):
         return self.object.readValue()
 
 class Keypad(Sensor):
-    #Sets a singel char in the keypad (keypress simulation)
+    #Sets a singel char in the keypad (keypress controllerulation)
     def push(self, c: chr) -> None:
         self.object.push(c)
 
@@ -146,14 +148,19 @@ class Keypad(Sensor):
             s += charBuffer
 
 class Factory:
-    def __init__(self, sim : Simulator):
-        self.simulator = sim
+    def __init__(self, controller : Controller):
+        self.Controller = controller
 
     def make(self, instType, *instArgs):
         if not issubclass(instType, BaseClass):
             raise TypeError("Class instance" + str(instType) + " does not have a valid base class.")
 
-        inst = globals()[instType.__name__](self.simulator, *instArgs)
+        #targetclass = cls.capitalize()
+        inst = globals()[instType.__name__](self.Controller, *instArgs)
+
+        #if not isinstance(inst, BaseClass):
+        #    raise ValueError("Class instance" + str(instType) + " does not have a valid base class.")
+
         
         return inst
 
