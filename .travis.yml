@@ -14,7 +14,7 @@ install:
 # before_script:
 
 # command to run tests
-script: python -m unittest
+script: python -m unittest -v
 
 # after_success:
 # after_failure:

@@ -20,6 +20,7 @@ class TestSimulatorControlFactory(unittest.TestCase):
 
 		with self.assertRaises(TypeError):
 			factory.make(TempClass, 'a')
+			
 
 		'''
 	 	self.assertEqual(controller.PumpA.isOn(), False)
@@ -36,3 +37,4 @@ class TestSimulatorControlFactory(unittest.TestCase):
 	 	self.assertEqual(controller.LedYellowM.isOn(), True)
 		'''
 
+			
