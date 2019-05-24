@@ -4,6 +4,17 @@ import sys
 
 import SimulatorInterface
 
+from enum import Enum
+
+class States(Enum):
+    IDLE = 0,
+    WAITING_FOR_USER_ACTION = 1,
+    WAITING_CUP_PLACEMENT = 2,
+    WAITING_USER_SELECTION = 3,
+    DISPENSING = 4,
+    DISPENSING_DONE = 5,
+    FAULT = 6
+
 
 class Controller:
 
@@ -14,6 +25,7 @@ class Controller:
         """
         self._Controller__sensors = sensors
         self._Controller__effectors = effectors
+        self.state = States.IDLE
 
         
         control = SimulatorInterface.Factory(self)
@@ -49,7 +61,21 @@ class Controller:
 
     def update(self) -> None:
         #Runs the test func 
-        self.testFunc()
+        #self.testFunc()
+        keypressed = self._Controller__sensors['keypad'].pop()
+
+        if self.state == States.IDLE:
+            self._Controller__effectors['lcd'].clear()
+            self._Controller__effectors['lcd'].pushString("\t0000 Lemonator\n Please press the A\n button to continue...\n")
+
+            if keypressed == 'A':
+                sys.stdout.flush()
+                self.state = States.WAITING_FOR_USER_ACTION
+
+        if self.state == States.WAITING_FOR_USER_ACTION:
+            self._Controller__effectors['lcd'].clear()
+            self._Controller__effectors['lcd'].pushString("\t0000 Please place a cup.\n")
+
 
     def testFunc(self, timestamp = 0) -> None:
         print(f"Colour:      " + str(self.Colour.readValue()))
