@@ -17,7 +17,8 @@ class BaseClass():
             if not (e.startswith('__') and e.endswith('__')):
                 print(e)
         print("\n==========================\n")
-
+            
+'''
 class Vessel(BaseClass): 
     def __init__(self, controller : Controller, objectID : str):
         super(Vessel, self).__init__(controller)
@@ -46,6 +47,7 @@ class Vessel(BaseClass):
 
     def flow(self) -> None:
         return self.object.flow()
+'''
         
 class Effector(BaseClass):
     def __init__(self, controller : Controller, objectID : str):
