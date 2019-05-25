@@ -91,8 +91,12 @@ class LCD(Effector):
         self.object.clear()
 
     #Sets a singel char on the lcd
-    def put(self, s: str) -> None:
+    def putc(self, s: str) -> None:
         self.object.put(s)
+
+    def __lshift__(self, obj) -> None:
+        for c in obj:
+            self.putc(c)
 
 class Sensor(BaseClass):
     def __init__(self, controller : Controller, objectID : str):
