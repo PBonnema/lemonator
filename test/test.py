@@ -5,173 +5,250 @@ import Effector
 import re
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
+from enum import Enum
+
 
 class TestBaseClass(TestCase):
-	def test_can_create(self):
-		# Arrange
-		object = Mock()
-		controller = Mock()
+    def test_can_create(self):
+        # Arrange
+        object = Mock()
+        controller = Mock()
 
-		# Act
-		instance = SimulatorInterface.BaseClass(object, controller)
+        # Act
+        instance = SimulatorInterface.BaseClass(object, controller)
 
-		# Assert
-		self.assertIs(object, instance.object)
-		self.assertIs(controller, instance.controller)
+        # Assert
+        self.assertIs(object, instance.object)
+        self.assertIs(controller, instance.controller)
 
-	def test_update_calls_update_on_object(self):
-		# Arrange
-		object = Mock()
-		controller = Mock()
-		target = SimulatorInterface.BaseClass(object, controller)
+    def test_update_calls_update_on_object(self):
+        # Arrange
+        object = Mock()
+        controller = Mock()
+        target = SimulatorInterface.BaseClass(object, controller)
 
-		# Act
-		target.update()
+        # Act
+        target.update()
 
-		# Assert
-		object.update.assert_called_once()
-		
+        # Assert
+        object.update.assert_called_once()
+
+
 class TestEffector(TestCase):
-	def test_can_create(self):
-		# Arrange
-		objectId = 'objId'
-		object = Mock()
-		controller = Mock()
-		controller._Controller__effectors = { objectId: object }
+    def test_can_create(self):
+        # Arrange
+        objectId = 'objId'
+        object = Mock()
+        controller = Mock()
+        controller._Controller__effectors = {objectId: object}
 
-		# Act
-		instance = SimulatorInterface.Effector(controller, objectId)
+        # Act
+        instance = SimulatorInterface.Effector(controller, objectId)
 
-		# Assert
-		self.assertIs(object, instance.object)
-		self.assertIs(controller, instance.controller)
+        # Assert
+        self.assertIs(object, instance.object)
+        self.assertIs(controller, instance.controller)
 
-	def test_switchOn_calls_switchOn_on_object(self):
-		# Arrange
-		objectId = 'objId'
-		object = Mock()
-		controller = Mock()
-		controller._Controller__effectors = { objectId: object }
-		target = SimulatorInterface.Effector(controller, objectId)
+    def test_switchOn_calls_switchOn_on_object(self):
+        # Arrange
+        objectId = 'objId'
+        object = Mock()
+        controller = Mock()
+        controller._Controller__effectors = {objectId: object}
+        target = SimulatorInterface.Effector(controller, objectId)
 
-		# Act
-		target.switchOn()
+        # Act
+        target.switchOn()
 
-		# Assert
-		object.switchOn.assert_called_once()
+        # Assert
+        object.switchOn.assert_called_once()
 
-	def test_switchOn_calls_switchOff_on_object(self):
-		# Arrange
-		objectId = 'objId'
-		object = Mock()
-		controller = Mock()
-		controller._Controller__effectors = { objectId: object }
-		target = SimulatorInterface.Effector(controller, objectId)
+    def test_switchOn_calls_switchOff_on_object(self):
+        # Arrange
+        objectId = 'objId'
+        object = Mock()
+        controller = Mock()
+        controller._Controller__effectors = {objectId: object}
+        target = SimulatorInterface.Effector(controller, objectId)
 
-		# Act
-		target.switchOff()
+        # Act
+        target.switchOff()
 
-		# Assert
-		object.switchOff.assert_called_once()
+        # Assert
+        object.switchOff.assert_called_once()
 
-	def test_isOn_calls_isOn_on_object_and_returns_value(self):
-		# Arrange
-		isOnValue = True
-		objectId = 'objId'
-		object = Mock()
-		object.isOn = Mock(return_value=isOnValue)
-		controller = Mock()
-		controller._Controller__effectors = { objectId: object }
-		target = SimulatorInterface.Effector(controller, objectId)
+    def test_isOn_calls_isOn_on_object_and_returns_value(self):
+        # Arrange
+        isOnValue = True
+        objectId = 'objId'
+        object = Mock()
+        object.isOn = Mock(return_value=isOnValue)
+        controller = Mock()
+        controller._Controller__effectors = {objectId: object}
+        target = SimulatorInterface.Effector(controller, objectId)
 
-		# Act
-		result = target.isOn()
+        # Act
+        result = target.isOn()
 
-		# Assert
-		object.isOn.assert_called_once()
-		self.assertEqual(result, True)
+        # Assert
+        object.isOn.assert_called_once()
+        self.assertEqual(result, True)
+
 
 class TestLED(TestCase):
-	def test_can_create(self):
-		# Arrange
-		objectId = 'objId'
-		object = Mock()
-		controller = Mock()
-		controller._Controller__effectors = { objectId: object }
+    def test_can_create(self):
+        # Arrange
+        objectId = 'objId'
+        object = Mock()
+        controller = Mock()
+        controller._Controller__effectors = {objectId: object}
 
-		# Act
-		instance = SimulatorInterface.LED(controller, objectId)
+        # Act
+        instance = SimulatorInterface.LED(controller, objectId)
 
-		# Assert
-		self.assertIs(object, instance.object)
-		self.assertIs(controller, instance.controller)
+        # Assert
+        self.assertIs(object, instance.object)
+        self.assertIs(controller, instance.controller)
+
 
 class TestSimulatorControlFactory(TestCase):
-	class BaseClassMagicMock(MagicMock):
-		def __subclasscheck__(self, subclass):
-			return self is subclass
-			
-	@patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
-	def test_create_valid_instance(self, MockClass):
-		# Arrange
-		createdInstance = Mock()
-		MockClass.return_value = createdInstance
-		controller = Mock()
-		target = SimulatorInterface.Factory(controller)
+    class BaseClassMagicMock(MagicMock):
+        def __subclasscheck__(self, subclass):
+            return self is subclass
 
-		# Act
-		dummy = target.make(MockClass)
+    @patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
+    def test_create_valid_instance(self, MockClass):
+        # Arrange
+        createdInstance = Mock()
+        MockClass.return_value = createdInstance
+        controller = Mock()
+        target = SimulatorInterface.Factory(controller)
 
-		# Assert
-		MockClass.assert_called_once_with(controller)
-		self.assertIs(createdInstance, dummy)
+        # Act
+        dummy = target.make(MockClass)
 
-	@patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
-	def test_create_instance_with_arguments(self, MockClass):
-		# Arrange
-		createdInstance = Mock()
-		MockClass.return_value = createdInstance
-		controller = Mock()
-		target = SimulatorInterface.Factory(controller)
+        # Assert
+        MockClass.assert_called_once_with(controller)
+        self.assertIs(createdInstance, dummy)
 
-		# Act
-		dummy = target.make(MockClass, 1, 2, 'a')
+    @patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
+    def test_create_instance_with_arguments(self, MockClass):
+        # Arrange
+        createdInstance = Mock()
+        MockClass.return_value = createdInstance
+        controller = Mock()
+        target = SimulatorInterface.Factory(controller)
 
-		# Assert
-		MockClass.assert_called_once_with(controller, 1, 2, 'a')
-		self.assertIs(createdInstance, dummy)
+        # Act
+        dummy = target.make(MockClass, 1, 2, 'a')
 
-	class AnotherClassMagicMock(MagicMock):
-		def __subclasscheck__(self, subclass):
-			return False
+        # Assert
+        MockClass.assert_called_once_with(controller, 1, 2, 'a')
+        self.assertIs(createdInstance, dummy)
 
-	@patch('SimulatorInterface.BaseClass', new_callable=AnotherClassMagicMock)
-	def test_create_invalid_instance(self, MockClass):
-		# Arrange
-		createdInstance = Mock()
-		MockClass.return_value = createdInstance
-		MockClass.__name__ = 'AnotherClass'
-		controller = Mock()
-		target = SimulatorInterface.Factory(controller)
+    class AnotherClassMagicMock(MagicMock):
+        def __subclasscheck__(self, subclass):
+            return False
 
-		# Act
-		def action(): target.make(MockClass)
+    @patch('SimulatorInterface.BaseClass', new_callable=AnotherClassMagicMock)
+    def test_create_invalid_instance(self, MockClass):
+        # Arrange
+        createdInstance = Mock()
+        MockClass.return_value = createdInstance
+        MockClass.__name__ = 'AnotherClass'
+        controller = Mock()
+        target = SimulatorInterface.Factory(controller)
 
-		# Assert
-		with self.assertRaises(TypeError) as cm:
-			action()
-		self.assertEqual(str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
+        # Act
+        def action(): target.make(MockClass)
 
-		
-	 	# self.assertEqual(controller.PumpA.isOn(), False)
-	 	# self.assertEqual(controller.PumpB.isOn(), False)
-	 	# self.assertEqual(controller.ValveA.isOn(), True)
-	 	# self.assertEqual(controller.ValveB.isOn(), True)
-	 	# self.assertEqual(controller.Heater.isOn(), False)
+        # Assert
+        with self.assertRaises(TypeError) as cm:
+            action()
+        self.assertEqual(str(
+            cm.exception), 'Class instance AnotherClass does not have a valid base class.')
 
-	 	# self.assertEqual(controller.LedRedA.isOn(), True)
-	 	# self.assertEqual(controller.LedGreenA.isOn(), False)
-	 	# self.assertEqual(controller.LedRedB.isOn(),	True)
-	 	# self.assertEqual(controller.LedGreenB.isOn(), False)
-	 	# self.assertEqual(controller.LedGreenM.isOn(), False)
-	 	# self.assertEqual(controller.LedYellowM.isOn(), True)
+        # self.assertEqual(controller.PumpA.isOn(), False)
+        # self.assertEqual(controller.PumpB.isOn(), False)
+        # self.assertEqual(controller.ValveA.isOn(), True)
+        # self.assertEqual(controller.ValveB.isOn(), True)
+        # self.assertEqual(controller.Heater.isOn(), False)
+
+        # self.assertEqual(controller.LedRedA.isOn(), True)
+        # self.assertEqual(controller.LedGreenA.isOn(), False)
+        # self.assertEqual(controller.LedRedB.isOn(),	True)
+        # self.assertEqual(controller.LedGreenB.isOn(), False)
+        # self.assertEqual(controller.LedGreenM.isOn(), False)
+        # self.assertEqual(controller.LedYellowM.isOn(), True)
+
+
+class TestStateMachine(TestCase):
+    def test_check_is_enum(self):
+        # Arrange
+        sm = Controller.States.IDLE
+
+        # Assert
+        self.assertIsInstance(sm, Enum)
+        self.assertIsNot(len(Controller.States), 0)
+        self.assertEqual(sm, Controller.States.IDLE)
+
+
+"""
+class TestControllerLogic(TestCase):
+
+    def setUp(self):
+        # Arrange
+        self.controller = Mock()
+
+    def test_check_controller_initialisation(self):
+        pass
+
+    def test_initial_state(self):
+        # controller = Controller.Controller()
+        # Assert
+        self.assertEqual(self.controller.state, Controller.States.IDLE)
+
+    def test_press_other(self):
+        # Assert
+        # Nothing should happen to our state here, we only transition when the user has pressed A.
+        self.assertEqual(self.controller.state, Controller.States.IDLE)
+
+    def test_press_A(self):
+        # Act
+        # --> Perform the keypress
+
+        # Assert
+        # Check if we transiiton to the next state...
+        self.assertEqual(self.controller.state,
+                         Controller.States.WAITING_FOR_CUP)
+
+    def test_cup_detection_succeeded(self):
+        # Act
+        # --> Place the cup.
+
+        self.assertEqual(self.controller.state,
+                         Controller.States.WAITING_USER_SELECTION)
+
+    def test_user_ml_selection_liquid_one(self):
+        # Test the ml select of liquid one.
+        pass
+
+    def test_user_ml_selection_liquid_two(self):
+        # Test the ml select of liquid two.
+        pass
+
+    def test_user_ml_selection_too_large_amount(self):
+        # Select a too large amount of liquid.
+
+        # Assert
+        self.assertEqual(self.controller.state, Controller.States.FAULT)
+
+    def test_cup_removed_pour_stop(self):
+        # Test if we stop dispensing in the case the cup is removed.
+        pass
+
+    def test_dispensing_finished(self):
+        # Assert
+        self.assertEqual(self.controller.state,
+                         Controller.States.DISPENSING_DONE)
+"""
