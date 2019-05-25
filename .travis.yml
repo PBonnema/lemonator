@@ -7,14 +7,14 @@ python:
 
 # command to install dependencies
 install:
-  - pip install pipreqs
-  - pipreqs --debug --ignore practicum-atp,.git,.vscode,__pycache__ .
+#   - pip install pipreqs
+#   - pipreqs --debug --ignore practicum-atp,.git,.vscode .
   - pip install -r requirements.txt
 
 # before_script:
 
 # command to run tests
-script: python -m unittest
+script: python -m unittest -v
 
 # after_success:
 # after_failure:
