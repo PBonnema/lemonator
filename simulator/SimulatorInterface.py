@@ -3,10 +3,9 @@ import time
 
 #Superclass with Constructor and Update function
 class BaseClass():      
-    def __init__(self, controller : Controller):
-        self.object = None
-        self.Controller = controller
-        #self.Controller = controller
+    def __init__(self, object, controller : Controller):
+        self.object = object
+        self.controller = controller
 
     def update(self) -> None:
         self.object.update()
@@ -21,8 +20,7 @@ class BaseClass():
 '''
 class Vessel(BaseClass): 
     def __init__(self, controller : Controller, objectID : str):
-        super(Vessel, self).__init__(controller)
-        self.object = self.Controller._Controller__plant._vessels[objectID]
+        super().__init__(controller._Controller__plant._vessels[objectID], controller)
         
     def flowIn(self, amount, colour) -> None:
         self.object.flowIn(amount, colour)
@@ -51,9 +49,7 @@ class Vessel(BaseClass):
         
 class Effector(BaseClass):
     def __init__(self, controller : Controller, objectID : str):
-        super(Effector, self).__init__(controller)
-
-        self.object = self.Controller._Controller__effectors[objectID]
+        super().__init__(controller._Controller__effectors[objectID], controller)
         
     #Sets the Effector state to on
     def switchOn(self) -> None:
@@ -100,8 +96,7 @@ class LCD(Effector):
 
 class Sensor(BaseClass):
     def __init__(self, controller : Controller, objectID : str):
-        super(Sensor, self).__init__(controller)
-        self.object = self.Controller._Controller__sensors[objectID]
+        super().__init__(controller._Controller__sensors[objectID], controller)
 
     #Returns the sensor data
     def readValue(self) -> float:
@@ -157,15 +152,8 @@ class Factory:
 
     def make(self, instType, *instArgs):
         if not issubclass(instType, BaseClass):
-            raise TypeError("Class instance" + str(instType) + " does not have a valid base class.")
+            raise TypeError(f"Class instance {instType.__name__} does not have a valid base class.")
 
-        #targetclass = cls.capitalize()
-        inst = globals()[instType.__name__](self.Controller, *instArgs)
+        inst = instType(self.Controller, *instArgs)
 
-        #if not isinstance(inst, BaseClass):
-        #    raise ValueError("Class instance" + str(instType) + " does not have a valid base class.")
-
-        
         return inst
-
-
