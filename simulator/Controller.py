@@ -29,34 +29,33 @@ class Faults(Enum):
     DISPENSING_SYRUP_SHORTAGE = 3,
     SELECTION_TEMP_TOO_HIGH = 4
     SELECTION_FLUID_TOO_HIGH = 5,
-    NONE = 6
+    SELECTION_INVALID = 6,
+    NONE = 7
 
 
 class PrettyProgressIcon():
     def __init__(self, stepChange=2):
-        self.icon = '\\'
-        self.currentStep = stepChange
+        #self.icon = '\\'
+        self.icons = ['\\', '|', '/', '-']
+        self.updateStep = stepChange
         self.stepChange = stepChange
+        self.iconStep = 0
 
     def next(self):
-        self.currentStep += 1
+        self.updateStep += 1
 
-        if self.currentStep < self.stepChange:
+        if self.updateStep < self.stepChange:
             return
+
+        self.iconStep += 1
+
+        if self.iconStep == len(self.icons):
+            self.iconStep = 0
 
         self.currentStep = 0
 
-        if self.icon == '\\':
-            self.icon = '|'
-        elif self.icon == '|':
-            self.icon = '/'
-        elif self.icon == '/':
-            self.icon = '-'
-        elif self.icon == '-':
-            self.icon = '\\'
-
     def get(self):
-        return self.icon
+        return self.icons[self.iconStep]
 
 
 class Controller:
@@ -125,6 +124,8 @@ class Controller:
         keypressed = self.Keypad.pop()
         self.LCDDisplay.clear()
 
+        self.updateLeds()
+
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
 
@@ -175,6 +176,9 @@ class Controller:
                 "Syrup: " + str(self.targetLevelSyrup) + " ml")
 
             if keypressed == '#':
+                if not self.targetLevelWater.isnumeric() or int(self.targetLevelWater) <= 0:
+                    self.fault = Faults.SELECTION_INVALID
+                    return
 
                 self.targetLevelWater = float(self.targetLevelWater)
 
@@ -196,6 +200,10 @@ class Controller:
             self.LCDDisplay.pushString(" ml (#)")
 
             if keypressed == '#':
+                if not self.targetLevelSyrup.isnumeric() or int(self.targetLevelSyrup) <= 0:
+                    self.fault = Faults.SELECTION_INVALID
+                    return
+
                 self.targetLevelSyrup = float(self.targetLevelSyrup)
 
                 if self.targetLevelSyrup > self.liquidLevelSyrup:
@@ -254,6 +262,8 @@ class Controller:
             self.LCDDisplay.pushString("Syrup shortage.")
         elif fault == Faults.SELECTION_TEMP_TOO_HIGH:
             self.LCDDisplay.pushString("Temperature too high.")
+        elif fault == Faults.SELECTION_INVALID:
+            self.LCDDisplay.pushString("Invalid selection.")
         # Keeps the fluid om the given temp
 
         self.LCDDisplay.pushString("\nPress # to continue.")
