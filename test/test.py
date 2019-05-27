@@ -43,7 +43,6 @@ class TestBaseClass(TestCase):
         # Assert
         obj.update.assert_called_once()
 
-
 class TestEffector(TestCase):
     def test_can_create(self):
         # Arrange
@@ -104,7 +103,6 @@ class TestEffector(TestCase):
         obj.isOn.assert_called_once()
         self.assertEqual(result, True)
 
-
 class TestLED(TestCase):
     def test_can_create(self):
         # Arrange
@@ -150,7 +148,6 @@ class TestLED(TestCase):
         # Assert
         obj.getColour.assert_called_once()
         self.assertEqual(True, result)
-
 
 class TestKeypad(TestCase):
     def test_can_create(self):
@@ -198,13 +195,12 @@ class TestKeypad(TestCase):
         self.assertListEqual(obj.push.mock_calls, [
                              call('a'), call('b'), call('1'), call('2')])
 
-
 class TestSimulatorControlFactory(TestCase):
     class BaseClassMagicMock(MagicMock):
         def __subclasscheck__(self, subclass):
             return self is subclass
 
-    @patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
+    @patch('SimulatorInterface.SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
     def test_create_valid_instance(self, MockClass):
         # Arrange
         createdInstance = Mock(spec_set=[''])
@@ -219,7 +215,7 @@ class TestSimulatorControlFactory(TestCase):
         MockClass.assert_called_once_with(controller)
         self.assertIs(createdInstance, dummy)
 
-    @patch('SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
+    @patch('SimulatorInterface.SimulatorInterface.BaseClass', new_callable=BaseClassMagicMock)
     def test_create_instance_with_arguments(self, MockClass):
         # Arrange
         createdInstance = Mock(spec_set=[''])
@@ -238,7 +234,7 @@ class TestSimulatorControlFactory(TestCase):
         def __subclasscheck__(self, subclass):
             return False
 
-    @patch('SimulatorInterface.BaseClass', new_callable=AnotherClassMagicMock)
+    @patch('SimulatorInterface.SimulatorInterface.BaseClass', new_callable=AnotherClassMagicMock)
     def test_create_invalid_instance(self, MockClass):
         # Arrange
         createdInstance = Mock(spec_set=[''])
@@ -253,8 +249,7 @@ class TestSimulatorControlFactory(TestCase):
         # Assert
         with self.assertRaises(TypeError) as cm:
             action()
-        self.assertEqual(str(
-            cm.exception), 'Class instance AnotherClass does not have a valid base class.')
+        self.assertEqual(str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
 
         # self.assertEqual(controller.PumpA.isOn(), False)
         # self.assertEqual(controller.PumpB.isOn(), False)
