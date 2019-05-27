@@ -1,24 +1,20 @@
-
-
-import Effector
-
-
+# import Effector
 
 import re
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
 
-import Simulator
-import Controller
+# import Simulator
+# import Controller
 import SimulatorInterface
 
 
-sensors = Simulator._Simulator__plant._sensors
-effectors = Simulator._Simulator__plant._effectors
+# sensors = Simulator._Simulator__plant._sensors
+# effectors = Simulator._Simulator__plant._effectors
 
 
-controller = Controller(sensors, effectors, SimulatorInterface)
-instance = SimulatorInterface.BaseClass(effectors.PumpA, controller)
+# controller = Controller(sensors, effectors, SimulatorInterface)
+# instance = SimulatorInterface.BaseClass(effectors.PumpA, controller)
 
 class TestBaseClass(TestCase):
 	def test_can_create(self):
