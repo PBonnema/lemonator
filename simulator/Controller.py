@@ -102,6 +102,10 @@ class Controller:
         self.targetLevelSyrup = ""
         self.liquidLevelWater = Constants.liquidMax
         self.liquidLevelSyrup = Constants.liquidMax
+        self.currentLevelWater = 0
+        self.currentLevelSyrup = 0
+        self.targetLevelSyrupCup = 0
+        self.targetLevelWaterCup = 0
 
         # Clean the keypad just to be sure.
         self.Keypad.popAll()
@@ -180,6 +184,7 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
+            self.targetLevelWaterCup = float(self.targetLevelWater)+3.0
             self.targetLevelWater = float(self.targetLevelWater)
 
             if self.targetLevelWater > self.liquidLevelWater:
@@ -204,12 +209,14 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
+            self.targetLevelSyrupCup = float(self.targetLevelSyrup)+3.0
             self.targetLevelSyrup = float(self.targetLevelSyrup)
 
             if self.targetLevelSyrup > self.liquidLevelSyrup:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             else:
                 self.state = States.DISPENSING
+    
                 self.targetLevelSyrup /= 100.0
 
     def dispensingState(self) -> None:
@@ -218,17 +225,17 @@ class Controller:
             self.fault = Faults.DISPENSING_CUP_REMOVED
             return
 
-        fromTargetPercentage = int(
-            (self.Level.readValue() * 100.0) / self.targetLevelWater)
+        fromTargetPercentage =  int((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)
 
-        self.LCDDisplay.pushString(
-            "     (" + self.progress.get() + ") " + str(fromTargetPercentage) + "%")
+        self.LCDDisplay.pushString("     (" + self.progress.get() + ") " + str(fromTargetPercentage) + "%")
 
-        self.setColourlevel(self.targetLevelWater)
+        self.setLevel(self.targetLevelWaterCup, self.targetLevelSyrupCup)
 
-        if abs(self.Level.readValue() - self.targetLevelWater) < 0.01 or self.Level.readValue() > self.targetLevelWater:
+        if abs((self.currentLevelSyrup+self.currentLevelWater) - (self.targetLevelWaterCup + self.targetLevelSyrupCup))== 0:
             self.shutFluid()
             self.state = States.IDLE
+            self.currentLevelSyrup = 0
+            self.currentLevelWater = 0
 
         self.progress.next()
 
@@ -282,27 +289,23 @@ class Controller:
             self.Heater.switchOff()
 
     # Keeps the fluid om the given colour
-    def setColourlevel(self, targetLevel=100,  targetColour=1.65) -> None:
-        currentColour = self.Colour.readValue()
-        currentLevel = self.Level.readValue()
-        if currentColour < targetColour:
-            if currentLevel <= targetLevel:
-                self.PumpA.switchOff()
-                self.PumpB.switchOn()
-            else:
-                self.shutFluid()
-        elif currentColour > targetColour:
-            if currentLevel <= targetLevel:
-                self.PumpA.switchOn()
-                self.PumpB.switchOff()
-            else:
-                self.shutFluid()
-        elif currentColour == targetColour:
-            if currentLevel <= targetLevel:
-                self.PumpA.switchOn()
-                self.PumpB.switchOn()
-            else:
-                self.shutFluid()
+    def setLevel(self, targetLevelSyrup, targetLevelWater) -> None:
+        if self.currentLevelSyrup <= targetLevelSyrup:
+            self.PumpA.switchOn()
+            self.ValveA.switchOff()
+            self.currentLevelSyrup += 1
+        else:
+            self.PumpA.switchOff()
+            self.ValveA.switchOn()
+
+        if self.currentLevelWater <= targetLevelWater:
+            self.PumpB.switchOn()
+            self.ValveB.switchOff()
+            self.currentLevelWater += 1
+        else:
+            self.PumpB.switchOff()
+            self.ValveB.switchOn()
+        
     
 
     def shutFluid(self) -> None:
@@ -310,13 +313,6 @@ class Controller:
         self.PumpB.switchOff()
         self.ValveA.switchOn()
         self.ValveB.switchOn()
-
-    def reset(self) -> None:
-        self.PumpA.switchOff()
-        self.PumpB.switchOff()
-        self.ValveA.switchOff()
-        self.ValveB.switchOff()
-        self.Heater.switchOff()
 
     def updateLeds(self) -> None:
         if self.PumpA.isOn() and not self.ValveA.isOn():
