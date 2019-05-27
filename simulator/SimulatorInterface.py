@@ -119,7 +119,7 @@ class Keypad(Sensor):
     #Pushes a string to the keypad
     def pushString(self, s: str) -> None:
         for c in s:
-            self.object.push(c)
+            self.push(c)
     
     #Pops the complete keypad buffer
     def popAll(self) -> str:
