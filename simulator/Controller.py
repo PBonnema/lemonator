@@ -66,23 +66,12 @@ class Controller:
         self._Controller__effectors = effectors
         self.state = States.IDLE
 
-        control = SimulatorInterface.Factory(self)
-
         if controlInterface == None:
             Interface = SimulatorInterface
         else:
             Interface = controlInterface
         control = Interface.Factory(self)
 
-        # Creation of objects
-        # effectors
-        self.PumpA = control.make(Interface.Effector, 'pumpA')
-        self.PumpB = control.make(Interface.Effector, 'pumpB')
-        self.ValveA = control.make(Interface.Effector, 'valveA')
-        self.ValveB = control.make(Interface.Effector, 'valveB')
-        self.Heater = control.make(Interface.Effector, 'heater')
-
-        # Creation of objects
         # effectors
         self.PumpA = control.make(Interface.Effector, 'pumpA')
         self.PumpB = control.make(Interface.Effector, 'pumpB')
@@ -124,6 +113,7 @@ class Controller:
     def update(self) -> None:
         keypressed = self.Keypad.pop()
         self.LCDDisplay.clear()
+        self.updateLeds()
 
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
@@ -186,7 +176,7 @@ class Controller:
 
         elif self.state == States.WAITING_USER_SELECTION_TWO:
             self.LCDDisplay.pushString(
-                "Water: " + str(self.targetLevelWater) + " ml\n")
+                "Water: " + str(self.targetLevelWater*100.0) + " ml\n")
             self.LCDDisplay.pushString("Syrup: " + str(self.targetLevelSyrup))
 
             if keypressed.isdigit():
@@ -287,16 +277,13 @@ class Controller:
                 self.PumpB.switchOn()
             else:
                 self.shutFluid()
+    
 
     def shutFluid(self) -> None:
         self.PumpA.switchOff()
         self.PumpB.switchOff()
         self.ValveA.switchOn()
         self.ValveB.switchOn()
-
-    def cupPresence(self) -> None:
-        if not self.Cup.readValue():
-            self.shutFluid()
 
     def reset(self) -> None:
         self.PumpA.switchOff()
