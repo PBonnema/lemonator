@@ -7,15 +7,14 @@ import SimulatorInterface
 
 class Controller:
 
-    def __init__(self, sensors, effectors):
-        """Controller is build using two Dictionaries:
-        - sensors: Dict[str, Sensor], using strings 'temp', 'color', 'level'
-        - effectors: Dict[str, Effector], using strings 'heater', 'pumpA', 'pumpB'
-        """
+    def __init__(self, sensors, effectors, controlInterface = None):
         self._Controller__sensors = sensors
         self._Controller__effectors = effectors
 
-        Interface = SimulatorInterface        
+        if controlInterface == None:
+            Interface = SimulatorInterface
+        else:
+            Interface = controlInterface
         control = Interface.Factory(self)
 
         #Creation of objects 
@@ -46,6 +45,8 @@ class Controller:
         self.LCDDisplay.clear()
         self.Keypad      = control.make(Interface.Keypad, 'keypad')
 
+        self.LedM = False
+
 
     def update(self) -> None:
         #Runs the test func 
@@ -59,6 +60,7 @@ class Controller:
         print(f"Cup:         " + str(self.Cup.readValue()))
         self.heaterOnTemp(10.0)
         self.setColourlevel(2.0, 1.0)
+        self.updateLeds()
 
     #Keeps the fluid om the given temp
     def heaterOnTemp(self, targetTemperature: float) -> None:
@@ -97,6 +99,35 @@ class Controller:
         self.ValveA.switchOn()
         self.ValveB.switchOn()
 
-    def shutValves(self) -> None:
+    def cupPresence(self) -> None:
+        if not self.Cup.readValue():
+            self.shutFluid()
+
+    def reset(self) -> None:
+        self.PumpA.switchOff()
+        self.PumpB.switchOff()
         self.ValveA.switchOff()
         self.ValveB.switchOff()
+        self.Heater.switchOff()
+    
+    def updateLeds(self) -> None:
+        if self.PumpA.isOn() == True and self.ValveA.isOn() == False:
+            self.LedGreenA.switchOn()
+            self.LedRedA.switchOff()
+        else:
+            self.LedGreenA.switchOff()
+            self.LedRedA.switchOn()
+
+        if self.PumpB.isOn() == True and self.ValveB.isOn() == False:
+            self.LedGreenB.switchOn()
+            self.LedRedB.switchOff()
+        else:
+            self.LedGreenB.switchOff()
+            self.LedRedB.switchOn()
+
+        if self.PumpA.isOn() == True and self.ValveA.isOn() == False and self.PumpB.isOn() == True and self.ValveB.isOn() == False and self.Cup.readValue() == True:
+            self.LedGreenM.switchOn()
+            self.LedYellowM.switchOff()
+        else:
+            self.LedGreenM.switchOff()
+            self.LedYellowM.switchOn()
