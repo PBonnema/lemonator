@@ -61,11 +61,7 @@ class PrettyProgressIcon():
 
 class Controller:
 
-    def __init__(self, sensors, effectors):
-        """Controller is build using two Dictionaries:
-        - sensors: Dict[str, Sensor], using strings 'temp', 'color', 'level'
-        - effectors: Dict[str, Effector], using strings 'heater', 'pumpA', 'pumpB'
-        """
+    def __init__(self, sensors, effectors, controlInterface=None):
         self._Controller__sensors = sensors
         self._Controller__effectors = effectors
         self.state = States.IDLE
@@ -80,22 +76,36 @@ class Controller:
         self.ValveB = control.make(SimulatorInterface.Effector, 'valveB')
         self.Heater = control.make(SimulatorInterface.Effector, 'heater')
 
+        if controlInterface == None:
+            Interface = SimulatorInterface
+        else:
+            Interface = controlInterface
+        control = Interface.Factory(self)
+
+        # Creation of objects
+        # effectors
+        self.PumpA = control.make(Interface.Effector, 'pumpA')
+        self.PumpB = control.make(Interface.Effector, 'pumpB')
+        self.ValveA = control.make(Interface.Effector, 'valveA')
+        self.ValveB = control.make(Interface.Effector, 'valveB')
+        self.Heater = control.make(Interface.Effector, 'heater')
+
         # LED's
-        self.LedRedA = control.make(SimulatorInterface.LED, 'redA')
-        self.LedGreenA = control.make(SimulatorInterface.LED, 'greenA')
-        self.LedRedB = control.make(SimulatorInterface.LED, 'redB')
-        self.LedGreenB = control.make(SimulatorInterface.LED, 'greenB')
-        self.LedGreenM = control.make(SimulatorInterface.LED, 'greenM')
-        self.LedYellowM = control.make(SimulatorInterface.LED, 'yellowM')
+        self.LedRedA = control.make(Interface.LED, 'redA')
+        self.LedGreenA = control.make(Interface.LED, 'greenA')
+        self.LedRedB = control.make(Interface.LED, 'redB')
+        self.LedGreenB = control.make(Interface.LED, 'greenB')
+        self.LedGreenM = control.make(Interface.LED, 'greenM')
+        self.LedYellowM = control.make(Interface.LED, 'yellowM')
 
         # Sensors
-        self.Colour = control.make(SimulatorInterface.Sensor, 'colour')
-        self.Temperature = control.make(SimulatorInterface.Sensor, 'temp')
-        self.Level = control.make(SimulatorInterface.Sensor, 'level')
-        self.Cup = control.make(SimulatorInterface.PresenceSensor, 'presence')
+        self.Colour = control.make(Interface.Sensor, 'colour')
+        self.Temperature = control.make(Interface.Sensor, 'temp')
+        self.Level = control.make(Interface.Sensor, 'level')
+        self.Cup = control.make(Interface.PresenceSensor, 'presence')
 
         # UI
-        self.LCDDisplay = control.make(SimulatorInterface.LCD, 'lcd')
+        self.LCDDisplay = control.make(Interface.LCD, 'lcd')
         # There has to be data in the buffer, before you can write to the buffer(put & pushString)
         self.LCDDisplay.clear()
         self.Keypad = control.make(SimulatorInterface.Keypad, 'keypad')
@@ -284,6 +294,35 @@ class Controller:
         self.ValveA.switchOn()
         self.ValveB.switchOn()
 
-    def shutValves(self) -> None:
+    def cupPresence(self) -> None:
+        if not self.Cup.readValue():
+            self.shutFluid()
+
+    def reset(self) -> None:
+        self.PumpA.switchOff()
+        self.PumpB.switchOff()
         self.ValveA.switchOff()
         self.ValveB.switchOff()
+        self.Heater.switchOff()
+
+    def updateLeds(self) -> None:
+        if self.PumpA.isOn() == True and self.ValveA.isOn() == False:
+            self.LedGreenA.switchOn()
+            self.LedRedA.switchOff()
+        else:
+            self.LedGreenA.switchOff()
+            self.LedRedA.switchOn()
+
+        if self.PumpB.isOn() == True and self.ValveB.isOn() == False:
+            self.LedGreenB.switchOn()
+            self.LedRedB.switchOff()
+        else:
+            self.LedGreenB.switchOff()
+            self.LedRedB.switchOn()
+
+        if self.PumpA.isOn() == True and self.ValveA.isOn() == False and self.PumpB.isOn() == True and self.ValveB.isOn() == False and self.Cup.readValue() == True:
+            self.LedGreenM.switchOn()
+            self.LedYellowM.switchOff()
+        else:
+            self.LedGreenM.switchOff()
+            self.LedYellowM.switchOn()
