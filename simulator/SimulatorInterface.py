@@ -19,36 +19,7 @@ class SimulatorInterface(Interface):
                     print(e)
             print("\n==========================\n")
                 
-    '''
-    class Vessel(BaseClass): 
-        def __init__(self, controller : Controller, objectID : str):
-            super().__init__(controller._Controller__plant._vessels[objectID], controller)
-            
-        def flowIn(self, amount, colour) -> None:
-            self.object.flowIn(amount, colour)
-
-        def heat(self, state: bool):
-            self.object.heat()
-
-        def setPresence(self, presence: bool):
-            self.object.setPresence(presence)
-        
-        def getFluidAmount(self) -> int:
-            return self.object.getFluidAmount()
-
-        def getColour(self) -> float:
-            return self.object.getColour()
-
-        def getTemperature(self) -> float:
-            return self.object.getTemperature()
-
-        def getPresence(self) -> bool:
-            return self.object.getPresence()
-
-        def flow(self) -> None:
-            return self.object.flow()
-    '''
-            
+   
     class Effector(BaseClass):
         def __init__(self, controller : Controller, objectID : str):
             super().__init__(controller._Controller__effectors[objectID], controller)
@@ -108,7 +79,7 @@ class SimulatorInterface(Interface):
         #Returns if the cup is presenced
         def readValue(self) -> bool:
             return self.object.readValue()
-
+            
     class Keypad(Sensor):
         #Sets a singel char in the keypad (keypress controllerulation)
         def push(self, c: chr) -> None:
