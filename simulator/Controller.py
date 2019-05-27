@@ -3,7 +3,7 @@ from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor, KeyPad
 import sys
 import Constants
 
-import SimulatorInterface
+from SimulatorInterface import SimulatorInterface
 
 from enum import Enum
 
@@ -68,19 +68,19 @@ class Controller:
 
         control = SimulatorInterface.Factory(self)
 
-        # Creation of objects
-        # effectors
-        self.PumpA = control.make(SimulatorInterface.Effector, 'pumpA')
-        self.PumpB = control.make(SimulatorInterface.Effector, 'pumpB')
-        self.ValveA = control.make(SimulatorInterface.Effector, 'valveA')
-        self.ValveB = control.make(SimulatorInterface.Effector, 'valveB')
-        self.Heater = control.make(SimulatorInterface.Effector, 'heater')
-
         if controlInterface == None:
             Interface = SimulatorInterface
         else:
             Interface = controlInterface
         control = Interface.Factory(self)
+
+        # Creation of objects
+        # effectors
+        self.PumpA = control.make(Interface.Effector, 'pumpA')
+        self.PumpB = control.make(Interface.Effector, 'pumpB')
+        self.ValveA = control.make(Interface.Effector, 'valveA')
+        self.ValveB = control.make(Interface.Effector, 'valveB')
+        self.Heater = control.make(Interface.Effector, 'heater')
 
         # Creation of objects
         # effectors
