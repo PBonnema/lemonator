@@ -6,17 +6,9 @@ from unittest.mock import Mock, MagicMock, patch, call
 
 import Simulator
 import Controller
+
 from enum import Enum
-#import SimulatorInterface.SimulatorInterface
 from SimulatorInterface import SimulatorInterface
-
-
-# sensors = Simulator._Simulator__plant._sensors
-# effectors = Simulator._Simulator__plant._effectors
-
-
-# controller = Controller(sensors, effectors, SimulatorInterface)
-# instance = SimulatorInterface.BaseClass(effectors.PumpA, controller)
 
 class TestBaseClass(TestCase):
     def test_can_create(self):
@@ -251,19 +243,6 @@ class TestSimulatorControlFactory(TestCase):
             action()
         self.assertEqual(str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
 
-        # self.assertEqual(controller.PumpA.isOn(), False)
-        # self.assertEqual(controller.PumpB.isOn(), False)
-        # self.assertEqual(controller.ValveA.isOn(), True)
-        # self.assertEqual(controller.ValveB.isOn(), True)
-        # self.assertEqual(controller.Heater.isOn(), False)
-
-        # self.assertEqual(controller.LedRedA.isOn(), True)
-        # self.assertEqual(controller.LedGreenA.isOn(), False)
-        # self.assertEqual(controller.LedRedB.isOn(),	True)
-        # self.assertEqual(controller.LedGreenB.isOn(), False)
-        # self.assertEqual(controller.LedGreenM.isOn(), False)
-        # self.assertEqual(controller.LedYellowM.isOn(), True)
-
 class TestStateMachine(TestCase):
     def test_check_is_enum(self):
         # Arrange
@@ -273,64 +252,3 @@ class TestStateMachine(TestCase):
         self.assertIsInstance(sm, Enum)
         self.assertIsNot(len(Controller.States), 0)
         self.assertEqual(sm, Controller.States.IDLE)
-
-
-"""
-class TestControllerLogic(TestCase):
-
-    def setUp(self):
-        # Arrange
-        self.controller = Mock()
-
-    def test_check_controller_initialisation(self):
-        pass
-
-    def test_initial_state(self):
-        # controller = Controller.Controller()
-        # Assert
-        self.assertEqual(self.controller.state, Controller.States.IDLE)
-
-    def test_press_other(self):
-        # Assert
-        # Nothing should happen to our state here, we only transition when the user has pressed A.
-        self.assertEqual(self.controller.state, Controller.States.IDLE)
-
-    def test_press_A(self):
-        # Act
-        # --> Perform the keypress
-
-        # Assert
-        # Check if we transiiton to the next state...
-        self.assertEqual(self.controller.state,
-                         Controller.States.WAITING_FOR_CUP)
-
-    def test_cup_detection_succeeded(self):
-        # Act
-        # --> Place the cup.
-
-        self.assertEqual(self.controller.state,
-                         Controller.States.WAITING_USER_SELECTION)
-
-    def test_user_ml_selection_liquid_one(self):
-        # Test the ml select of liquid one.
-        pass
-
-    def test_user_ml_selection_liquid_two(self):
-        # Test the ml select of liquid two.
-        pass
-
-    def test_user_ml_selection_too_large_amount(self):
-        # Select a too large amount of liquid.
-
-        # Assert
-        self.assertEqual(self.controller.state, Controller.States.FAULT)
-
-    def test_cup_removed_pour_stop(self):
-        # Test if we stop dispensing in the case the cup is removed.
-        pass
-
-    def test_dispensing_finished(self):
-        # Assert
-        self.assertEqual(self.controller.state,
-                         Controller.States.DISPENSING_DONE)
-"""
