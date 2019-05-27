@@ -12,7 +12,7 @@ class Controller:
         self._Controller__effectors = effectors
 
         if controlInterface == None:
-            Interface = SimulatorInterface
+            Interface = SimulatorInterface.SimulatorInterface
         else:
             Interface = controlInterface
         control = Interface.Factory(self)
