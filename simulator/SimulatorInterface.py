@@ -67,12 +67,16 @@ class SimulatorInterface(Interface):
 
     class Sensor(BaseClass):
         def __init__(self, controller: Controller, objectID: str):
-            super().__init__(controller._Controller__sensors[objectID], controller)
+            super().__init__(
+                controller._Controller__sensors[objectID], controller)
             self.buffer = []
 
         # Returns the sensor data
         def readValue(self) -> float:
             return self.object.readValue()
+
+        def setValue(self, value) -> None:
+            self.object._value = value
 
         # Returns the senor data with unit of measurment
         def measure(self) -> str:
@@ -80,21 +84,23 @@ class SimulatorInterface(Interface):
 
         def getAverage(self, numberOfReads) -> float:
             if self.buffer.__len__() < numberOfReads:
-                numberOfReads = self.buffer.__len__()          
+                numberOfReads = self.buffer.__len__()
             return sum(self.buffer[-numberOfReads:]) / numberOfReads
-               
+
         def update(self) -> None:
             self.object.update()
             self.buffer.append(self.readValue())
-
 
     class PresenceSensor(Sensor):
         # Returns if the cup is presenced
         def readValue(self) -> bool:
             return self.object.readValue()
 
+        def set(self, state: bool) -> None:
+            self.object._value = state
+
     class Keypad(Sensor):
-        # Sets a singel char in the keypad (keypress controllerulation)
+        # Sets a singel char in the keypad (keypress simulation)
         def push(self, c: chr) -> None:
             self.object.push(c)
 
