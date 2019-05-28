@@ -116,9 +116,8 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
-        #map(lambda x: x.update(),self.objects)
-        #for i in self.objects:
-        #    i.update()
+        for i in self.objects:
+            i.update()
 
         self.latestKeypress = self.Keypad.pop()
         self.LCDDisplay.clear()
@@ -259,6 +258,9 @@ class Controller:
 
         self.LCDDisplay.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)) + "%")
         
+        print(f"Theoretisch: " + str(self.currentLevelSyrup+self.currentLevelWater) + " |  Readvalue: " + str(self.Level.readValue()) )
+        sys.stdout.flush()
+
         if (self.currentLevelWater - self.targetLevelWaterCup) == 0 and (self.currentLevelSyrup - self.targetLevelSyrupCup) == 0:
             self.shutFluid()
             self.state = States.IDLE
