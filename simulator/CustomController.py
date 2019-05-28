@@ -3,7 +3,7 @@ from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor, KeyPad
 import sys
 import Constants
 
-#from SimulatorInterface import SimulatorInterface
+# from SimulatorInterface import SimulatorInterface
 
 from enum import Enum
 
@@ -257,8 +257,12 @@ class Controller:
 
         self.setLevel(self.targetLevelWaterCup, self.targetLevelSyrupCup)
 
-        self.lcd.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str(
+        self.LCDDisplay.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str(
             (self.currentLevelSyrup + self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)) + "%")
+
+        print(f"Theoretical: " + str(self.currentLevelSyrup+self.currentLevelWater) +
+              " |  Readvalue: " + str(self.Level.readValue()))
+        sys.stdout.flush()
 
         if (self.currentLevelWater - self.targetLevelWaterCup) == 0 and (self.currentLevelSyrup - self.targetLevelSyrupCup) == 0:
             self.shutFluid()
@@ -269,8 +273,8 @@ class Controller:
         self.progress.next()
 
     def calibrateState(self) -> None:
-        #self.liquidLevel1 = Constants.liquidMax
-        #self.liquidLevel2 = Constants.liquidMax
+        # self.liquidLevel1 = Constants.liquidMax
+        # self.liquidLevel2 = Constants.liquidMax
 
         self.lcd.pushString("Calibration finished!")
 
