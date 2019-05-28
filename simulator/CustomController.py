@@ -3,7 +3,7 @@ from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor, KeyPad
 import sys
 import Constants
 
-from SimulatorInterface import SimulatorInterface
+#from SimulatorInterface import SimulatorInterface
 
 from enum import Enum
 
@@ -60,15 +60,11 @@ class PrettyProgressIcon():
 
 class Controller:
 
-    def __init__(self, sensors, effectors, controlInterface=None):
+    def __init__(self, sensors, effectors, Interface):
         self._Controller__sensors = sensors
         self._Controller__effectors = effectors
         self.state = States.IDLE
 
-        if controlInterface == None:
-            Interface = SimulatorInterface
-        else:
-            Interface = controlInterface
         control = Interface.Factory(self)
 
         # effectors
@@ -96,7 +92,7 @@ class Controller:
         self.LCDDisplay = control.make(Interface.LCD, 'lcd')
         # There has to be data in the buffer, before you can write to the buffer(put & pushString)
         self.LCDDisplay.clear()
-        self.Keypad = control.make(SimulatorInterface.Keypad, 'keypad')
+        self.Keypad = control.make(Interface.Keypad, 'keypad')
 
         self.targetLevelWater = ""
         self.targetLevelSyrup = ""
@@ -330,8 +326,8 @@ class Controller:
             self.LedRedB.switchOn()
 
         if self.PumpA.isOn() and not self.ValveA.isOn() and self.PumpB.isOn() and not self.ValveB.isOn() and self.Cup.readValue():
-            self.LedGreenM.switchOn()
-            self.LedYellowM.switchOff()
-        else:
             self.LedGreenM.switchOff()
             self.LedYellowM.switchOn()
+        else:
+            self.LedGreenM.switchOn()
+            self.LedYellowM.switchOff()

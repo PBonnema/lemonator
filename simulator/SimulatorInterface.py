@@ -1,4 +1,4 @@
-import Controller
+import CustomController as Controller
 import time
 from Interface import Interface
 
