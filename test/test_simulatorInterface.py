@@ -5,7 +5,7 @@ from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
 
 import Simulator
-import Controller
+import CustomController
 
 from enum import Enum
 from SimulatorInterface import SimulatorInterface

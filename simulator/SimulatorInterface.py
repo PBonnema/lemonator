@@ -67,8 +67,8 @@ class SimulatorInterface(Interface):
 
     class Sensor(BaseClass):
         def __init__(self, controller: Controller, objectID: str):
-            super().__init__(
-                controller._Controller__sensors[objectID], controller)
+            super().__init__(controller._Controller__sensors[objectID], controller)
+            self.buffer = []
 
         # Returns the sensor data
         def readValue(self) -> float:
@@ -77,6 +77,16 @@ class SimulatorInterface(Interface):
         # Returns the senor data with unit of measurment
         def measure(self) -> str:
             return self.object.measure()
+
+        def getAverage(self, numberOfReads) -> float:
+            if self.buffer.__len__() < numberOfReads:
+                numberOfReads = self.buffer.__len__()          
+            return sum(self.buffer[-numberOfReads:]) / numberOfReads
+               
+        def update(self) -> None:
+            self.object.update()
+            self.buffer.append(self.readValue())
+
 
     class PresenceSensor(Sensor):
         # Returns if the cup is presenced
