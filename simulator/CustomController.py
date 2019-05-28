@@ -36,7 +36,6 @@ class Faults(Enum):
 
 class PrettyProgressIcon():
     def __init__(self, stepChange=2):
-        #self.icon = '\\'
         self.icons = ['\\', '|', '/', '-']
         self.updateStep = stepChange
         self.stepChange = stepChange
@@ -116,6 +115,10 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
+<<<<<<< HEAD
+=======
+        map(lambda x: x.update(),self.objects)
+>>>>>>> cab9e89ab36294d552956c20401ee4af77682210
         for i in self.objects:
             i.update()
 
