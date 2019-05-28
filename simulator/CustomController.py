@@ -94,17 +94,15 @@ class Controller:
         self.LCDDisplay.clear()
         self.Keypad = control.make(Interface.Keypad, 'keypad')
 
-        self.objects = [self.PumpA, self.PumpB, self.ValveA, self.ValveB, self.Heater, self.LedRedA, self.LedGreenA, self.LedRedB, 
-            self.LedGreenB, self.LedGreenM, self.LedYellowM, self.Colour, self.Temperature, self.Level, self.Cup, self.LCDDisplay, self.Keypad]
+        self.objects = [self.Colour, self.Temperature, self.Level]
 
         self.targetLevelWater = ""
         self.targetLevelSyrup = ""
-        self.liquidLevelWater = Constants.liquidMax
-        self.liquidLevelSyrup = Constants.liquidMax
         self.currentLevelWater = 0
         self.currentLevelSyrup = 0
-        self.targetLevelSyrupCup = 0
-        self.targetLevelWaterCup = 0
+
+        self.liquidLevelWater = Constants.liquidMax
+        self.liquidLevelSyrup = Constants.liquidMax
 
         # Clean the keypad just to be sure.
         self.Keypad.popAll()
@@ -115,10 +113,6 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
-<<<<<<< HEAD
-=======
-        map(lambda x: x.update(),self.objects)
->>>>>>> cab9e89ab36294d552956c20401ee4af77682210
         for i in self.objects:
             i.update()
 
@@ -199,18 +193,16 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelWaterCup = self.setCupValue(float(self.targetLevelWater))
-            self.targetLevelWater = float(self.targetLevelWater)
+            self.targetLevelWater = self.correctValue(float(self.targetLevelWater))
 
             if self.targetLevelWater > self.liquidLevelWater:
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
             else:
                 self.state = States.WAITING_USER_SELECTION_TWO
-                self.targetLevelWater /= 100.0
 
     def enterSelectionTwoState(self) -> None:
         self.LCDDisplay.pushString(
-                "Water: " + str(self.targetLevelWater*100.0) + " ml\n")
+                "Water: " + str(int(self.targetLevelWater)) + " ml\n")
         self.LCDDisplay.pushString("Syrup: " + str(self.targetLevelSyrup))
 
         if self.latestKeypress.isdigit():
@@ -224,15 +216,12 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelSyrupCup = self.setCupValue(float(self.targetLevelSyrup))
-            self.targetLevelSyrup = float(self.targetLevelSyrup)
+            self.targetLevelSyrup = self.correctValue(float(self.targetLevelSyrup))         
 
             if self.targetLevelSyrup > self.liquidLevelSyrup:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             else:
                 self.state = States.DISPENSING
-    
-                self.targetLevelSyrup /= 100.0
 
     def enterHeatSelectionState(self) -> None:
         self.LCDDisplay.pushString("Heat: " + str(self.targetHeat))
@@ -257,14 +246,14 @@ class Controller:
             self.fault = Faults.DISPENSING_CUP_REMOVED
             return
 
-        self.setLevel(self.targetLevelWaterCup, self.targetLevelSyrupCup)
+        self.setLevel(self.targetLevelWater,self.targetLevelSyrup)
 
-        self.LCDDisplay.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)) + "%")
+        self.LCDDisplay.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)) + "%")
         
-        print(f"Theoretisch: " + str(self.currentLevelSyrup+self.currentLevelWater) + " |  Readvalue: " + str(self.Level.readValue()) )
+        print(f"Syrup: " + str(self.currentLevelSyrup) + " : " + str(self.targetLevelSyrup) + " |  Water: " + str(self.currentLevelWater) + " : " + str(self.targetLevelWater) + " - " + str(self.Level.readValue()*33.3))
         sys.stdout.flush()
 
-        if (self.currentLevelWater - self.targetLevelWaterCup) == 0 and (self.currentLevelSyrup - self.targetLevelSyrupCup) == 0:
+        if (self.currentLevelWater - self.targetLevelWater) >= 0 and (self.currentLevelSyrup - self.targetLevelSyrup) >= 0:
             self.shutFluid()
             self.state = States.IDLE
             self.currentLevelSyrup = 0
@@ -314,8 +303,11 @@ class Controller:
 
     def heaterOnTemp(self, targetTemperature: float) -> None:
         currentTemprature = self.Temperature.getAverage(3)
-        if currentTemprature < targetTemperature:
-            self.Heater.switchOn()
+        if self.Cup.readValue():
+            if currentTemprature < targetTemperature:
+                self.Heater.switchOn()
+            else:
+                self.Heater.switchOff()
         else:
             self.Heater.switchOff()
 
@@ -336,7 +328,6 @@ class Controller:
         else:
             self.PumpB.switchOff()
             self.ValveB.switchOn()
-
         
     def shutFluid(self) -> None:
         self.PumpA.switchOff()
@@ -366,5 +357,5 @@ class Controller:
             self.LedGreenM.switchOn()
             self.LedYellowM.switchOff()
 
-    def setCupValue(self, value: float) -> float:
-        return value + value / (value/3.0)
+    def correctValue(self, value: float) -> float:
+        return value + (value / (3.3 * (value/9)))
