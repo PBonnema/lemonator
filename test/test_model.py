@@ -39,8 +39,6 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.liquidLevelSyrup, Constants.liquidMax)
         self.assertEqual(self.ctl.targetLevelWater, "")
         self.assertEqual(self.ctl.targetLevelSyrup, "")
-        self.assertEqual(self.ctl.targetLevelSyrupCup, 0)
-        self.assertEqual(self.ctl.targetLevelWaterCup, 0)
         self.assertEqual(self.ctl.targetHeat, "")
 
     def test_controller_init_fault_state(self):
@@ -101,8 +99,8 @@ class TestStateTransitions(TestCase):
         self.ctl.keypad.push('#')
         self.ctl.update()
 
-        self.assertEqual(self.ctl.targetLevelWater, 0.5)
-        self.assertEqual(self.ctl.targetLevelSyrup, 0.2)
+        self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
+        self.assertEqual(self.ctl.targetLevelSyrup, 22.72727272727273)
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
 
