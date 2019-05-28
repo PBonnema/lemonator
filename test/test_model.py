@@ -100,7 +100,7 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
-        self.assertEqual(self.ctl.targetLevelSyrup, 22.72727272727273)
+        self.assertEqual(self.ctl.targetLevelSyrup, 22.727272727272727)
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
 
