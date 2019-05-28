@@ -36,7 +36,6 @@ class Faults(Enum):
 
 class PrettyProgressIcon():
     def __init__(self, stepChange=2):
-        #self.icon = '\\'
         self.icons = ['\\', '|', '/', '-']
         self.updateStep = stepChange
         self.stepChange = stepChange
@@ -116,9 +115,9 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
-        #map(lambda x: x.update(),self.objects)
-        #for i in self.objects:
-        #    i.update()
+        map(lambda x: x.update(),self.objects)
+        for i in self.objects:
+            i.update()
 
         self.latestKeypress = self.Keypad.pop()
         self.LCDDisplay.clear()
