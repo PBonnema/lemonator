@@ -10,6 +10,7 @@ import CustomController as Controller
 from enum import Enum
 from SimulatorInterface import SimulatorInterface
 
+
 class TestBaseClass(TestCase):
     def test_can_create(self):
         # Arrange
@@ -34,6 +35,7 @@ class TestBaseClass(TestCase):
 
         # Assert
         obj.update.assert_called_once()
+
 
 class TestEffector(TestCase):
     def test_can_create(self):
@@ -95,6 +97,7 @@ class TestEffector(TestCase):
         obj.isOn.assert_called_once()
         self.assertEqual(result, True)
 
+
 class TestLED(TestCase):
     def test_can_create(self):
         # Arrange
@@ -141,6 +144,7 @@ class TestLED(TestCase):
         obj.getColour.assert_called_once()
         self.assertEqual(True, result)
 
+
 class TestKeypad(TestCase):
     def test_can_create(self):
         # Arrange
@@ -186,6 +190,7 @@ class TestKeypad(TestCase):
         # Assert
         self.assertListEqual(obj.push.mock_calls, [
                              call('a'), call('b'), call('1'), call('2')])
+
 
 class TestSimulatorControlFactory(TestCase):
     class BaseClassMagicMock(MagicMock):
@@ -241,7 +246,9 @@ class TestSimulatorControlFactory(TestCase):
         # Assert
         with self.assertRaises(TypeError) as cm:
             action()
-        self.assertEqual(str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
+        self.assertEqual(str(
+            cm.exception), 'Class instance AnotherClass does not have a valid base class.')
+
 
 class TestStateMachine(TestCase):
     def test_check_is_enum(self):

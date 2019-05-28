@@ -11,7 +11,6 @@ from enum import Enum
 class States(Enum):
     IDLE = 0,
     WAITING_FOR_CUP = 1,
-    WAITING_CUP_PLACEMENT = 2,
     WAITING_USER_SELECTION_ONE = 3,
     DISPENSING = 4,
     DISPENSING_DONE = 5,
@@ -19,8 +18,7 @@ class States(Enum):
     CALIBRATE = 7,
     DISPLAY_STATS = 8,
     WAITING_USER_SELECTION_TWO = 9,
-    FAULT_OCCURED = 10,
-    WAITING_USER_HEAT_SELECTION = 11
+    WAITING_USER_HEAT_SELECTION = 10
 
 
 class Faults(Enum):
@@ -63,39 +61,41 @@ class Controller:
     def __init__(self, sensors, effectors, Interface):
         self._Controller__sensors = sensors
         self._Controller__effectors = effectors
+
         self.state = States.IDLE
 
         control = Interface.Factory(self)
 
         # effectors
-        self.PumpA = control.make(Interface.Effector, 'pumpA')
-        self.PumpB = control.make(Interface.Effector, 'pumpB')
-        self.ValveA = control.make(Interface.Effector, 'valveA')
-        self.ValveB = control.make(Interface.Effector, 'valveB')
-        self.Heater = control.make(Interface.Effector, 'heater')
+        self.pumpA = control.make(Interface.Effector, 'pumpA')
+        self.pumpB = control.make(Interface.Effector, 'pumpB')
+        self.valveA = control.make(Interface.Effector, 'valveA')
+        self.valveB = control.make(Interface.Effector, 'valveB')
+        self.heater = control.make(Interface.Effector, 'heater')
 
         # LED's
-        self.LedRedA = control.make(Interface.LED, 'redA')
-        self.LedGreenA = control.make(Interface.LED, 'greenA')
-        self.LedRedB = control.make(Interface.LED, 'redB')
-        self.LedGreenB = control.make(Interface.LED, 'greenB')
-        self.LedGreenM = control.make(Interface.LED, 'greenM')
-        self.LedYellowM = control.make(Interface.LED, 'yellowM')
+        self.ledRedA = control.make(Interface.LED, 'redA')
+        self.ledGreenA = control.make(Interface.LED, 'greenA')
+        self.ledRedB = control.make(Interface.LED, 'redB')
+        self.ledGreenB = control.make(Interface.LED, 'greenB')
+        self.ledGreenM = control.make(Interface.LED, 'greenM')
+        self.ledYellowM = control.make(Interface.LED, 'yellowM')
 
         # Sensors
-        self.Colour = control.make(Interface.Sensor, 'colour')
-        self.Temperature = control.make(Interface.Sensor, 'temp')
-        self.Level = control.make(Interface.Sensor, 'level')
-        self.Cup = control.make(Interface.PresenceSensor, 'presence')
+        self.colour = control.make(Interface.Sensor, 'colour')
+        self.temperature = control.make(Interface.Sensor, 'temp')
+        self.level = control.make(Interface.Sensor, 'level')
+        self.cup = control.make(Interface.PresenceSensor, 'presence')
 
         # UI
-        self.LCDDisplay = control.make(Interface.LCD, 'lcd')
+        self.lcd = control.make(Interface.LCD, 'lcd')
         # There has to be data in the buffer, before you can write to the buffer(put & pushString)
-        self.LCDDisplay.clear()
-        self.Keypad = control.make(Interface.Keypad, 'keypad')
+        self.lcd.clear()
+        self.keypad = control.make(Interface.Keypad, 'keypad')
 
-        self.objects = [self.PumpA, self.PumpB, self.ValveA, self.ValveB, self.Heater, self.LedRedA, self.LedGreenA, self.LedRedB, 
-            self.LedGreenB, self.LedGreenM, self.LedYellowM, self.Colour, self.Temperature, self.Level, self.Cup, self.LCDDisplay, self.Keypad]
+        # @mike What is the function of this array?
+        self.objects = [self.pumpA, self.pumpB, self.valveA, self.valveB, self.heater, self.ledRedA, self.ledGreenA, self.ledRedB,
+                        self.ledGreenB, self.ledGreenM, self.ledYellowM, self.colour, self.temperature, self.level, self.cup, self.lcd, self.keypad]
 
         self.targetLevelWater = ""
         self.targetLevelSyrup = ""
@@ -107,7 +107,7 @@ class Controller:
         self.targetLevelWaterCup = 0
 
         # Clean the keypad just to be sure.
-        self.Keypad.popAll()
+        self.keypad.popAll()
         self.latestKeypress = None
 
         self.progress = PrettyProgressIcon()
@@ -115,22 +115,21 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
-        map(lambda x: x.update(),self.objects)
         for i in self.objects:
             i.update()
 
-        self.latestKeypress = self.Keypad.pop()
-        self.LCDDisplay.clear()
+        self.latestKeypress = self.keypad.pop()
+        self.lcd.clear()
         self.updateLeds()
-        
+
         if self.targetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
-            self.heaterOnTemp(float(self.targetHeat)/20.0)
+            self.heaterOnTemp(float(self.targetHeat) / 20.0)
 
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
             return
 
-        self.LCDDisplay.pushString(
+        self.lcd.pushString(
             "\x0c   Lemonator v1.0\n--------------------\n")
 
         if self.state == States.IDLE:
@@ -151,13 +150,13 @@ class Controller:
             self.displayStatsState()
 
     def idleState(self) -> None:
-        self.LCDDisplay.pushString(
-                "A = Start, B = Stats\nC =Calibrate D =Heat")
+        self.lcd.pushString(
+            "A = Start, B = Stats\nC = Calibrate, D = Heat")
 
         if self.latestKeypress == 'A':
             self.targetLevelWater = ""
             self.targetLevelSyrup = ""
-            
+
             self.state = States.WAITING_FOR_CUP
 
         if self.latestKeypress == 'B':
@@ -171,24 +170,24 @@ class Controller:
             self.state = States.WAITING_USER_HEAT_SELECTION
 
     def waitingForCupState(self) -> None:
-        if self.Cup.readValue():
+        if self.cup.readValue():
             print("Cup detected!")
             sys.stdout.flush()
             self.state = States.WAITING_USER_SELECTION_ONE
         else:
-            self.LCDDisplay.pushString(
+            self.lcd.pushString(
                 "Please place a cup\nto continue...\n")
 
     def enterSelectionOneState(self) -> None:
-        self.LCDDisplay.pushString("Water: " + str(self.targetLevelWater))
+        self.lcd.pushString("Water: " + str(self.targetLevelWater))
 
         if self.latestKeypress.isdigit():
-            self.LCDDisplay.putc(self.latestKeypress)
+            self.lcd.putc(self.latestKeypress)
             self.targetLevelWater += self.latestKeypress
 
-        self.LCDDisplay.pushString(" ml (#)\n")
+        self.lcd.pushString(" ml (#)\n")
 
-        self.LCDDisplay.pushString(
+        self.lcd.pushString(
             "Syrup: " + str(self.targetLevelSyrup) + " ml")
 
         if self.latestKeypress == '#':
@@ -196,7 +195,8 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelWaterCup = self.setCupValue(float(self.targetLevelWater))
+            self.targetLevelWaterCup = self.setCupValue(
+                float(self.targetLevelWater))
             self.targetLevelWater = float(self.targetLevelWater)
 
             if self.targetLevelWater > self.liquidLevelWater:
@@ -206,58 +206,60 @@ class Controller:
                 self.targetLevelWater /= 100.0
 
     def enterSelectionTwoState(self) -> None:
-        self.LCDDisplay.pushString(
-                "Water: " + str(self.targetLevelWater*100.0) + " ml\n")
-        self.LCDDisplay.pushString("Syrup: " + str(self.targetLevelSyrup))
+        self.lcd.pushString(
+            "Water: " + str(self.targetLevelWater*100.0) + " ml\n")
+        self.lcd.pushString("Syrup: " + str(self.targetLevelSyrup))
 
         if self.latestKeypress.isdigit():
-            self.LCDDisplay.putc(self.latestKeypress)
+            self.lcd.putc(self.latestKeypress)
             self.targetLevelSyrup += self.latestKeypress
 
-        self.LCDDisplay.pushString(" ml (#)")
+        self.lcd.pushString(" ml (#)")
 
         if self.latestKeypress == '#':
             if not self.targetLevelSyrup.isnumeric() or int(self.targetLevelSyrup) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelSyrupCup = self.setCupValue(float(self.targetLevelSyrup))
+            self.targetLevelSyrupCup = self.setCupValue(
+                float(self.targetLevelSyrup))
             self.targetLevelSyrup = float(self.targetLevelSyrup)
 
             if self.targetLevelSyrup > self.liquidLevelSyrup:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             else:
                 self.state = States.DISPENSING
-    
+
                 self.targetLevelSyrup /= 100.0
 
     def enterHeatSelectionState(self) -> None:
-        self.LCDDisplay.pushString("Heat: " + str(self.targetHeat))
+        self.lcd.pushString("Heat: " + str(self.targetHeat))
 
         if self.latestKeypress.isdigit():
-            self.LCDDisplay.putc(self.latestKeypress)
+            self.lcd.putc(self.latestKeypress)
             self.targetHeat += self.latestKeypress
 
-        self.LCDDisplay.pushString(" C (#)")
+        self.lcd.pushString(" C (#)")
 
         if self.latestKeypress == '#':
             if not self.targetHeat.isnumeric() or int(self.targetHeat) <= 0 or int(self.targetHeat) >= 100:
                 self.fault = Faults.SELECTION_INVALID
                 return
-            
+
             self.targetHeat = float(self.targetHeat)
             self.state = States.IDLE
 
     def dispensingState(self) -> None:
-        if not self.Cup.readValue():
+        if not self.cup.readValue():
             self.shutFluid()
             self.fault = Faults.DISPENSING_CUP_REMOVED
             return
 
         self.setLevel(self.targetLevelWaterCup, self.targetLevelSyrupCup)
 
-        self.LCDDisplay.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)) + "%")
-        
+        self.lcd.pushString(f"     (" + self.progress.get() + ") " + "{:.1}".format(str(
+            (self.currentLevelSyrup + self.currentLevelWater)/(self.targetLevelWaterCup + self.targetLevelSyrupCup)*100)) + "%")
+
         if (self.currentLevelWater - self.targetLevelWaterCup) == 0 and (self.currentLevelSyrup - self.targetLevelSyrupCup) == 0:
             self.shutFluid()
             self.state = States.IDLE
@@ -270,95 +272,94 @@ class Controller:
         #self.liquidLevel1 = Constants.liquidMax
         #self.liquidLevel2 = Constants.liquidMax
 
-        self.LCDDisplay.pushString("Calibration finished!")
+        self.lcd.pushString("Calibration finished!")
 
         if self.latestKeypress == '#':
             self.state = States.IDLE
 
     def displayStatsState(self) -> None:
-        self.LCDDisplay.pushString(
+        self.lcd.pushString(
             str(round(self.liquidLevelWater)) + " ml <|> ")
-        self.LCDDisplay.pushString(
+        self.lcd.pushString(
             str(round(self.liquidLevelSyrup)) + " ml\n")
-        self.LCDDisplay.pushString("Press # to exit.")
+        self.lcd.pushString("Press # to exit.")
 
         if self.latestKeypress == '#':
             self.state = States.IDLE
 
     def displayFault(self, fault: Faults) -> None:
-        self.LCDDisplay.pushString("\x0c        ERROR\n--------------------\n")
+        self.lcd.pushString("\x0c        ERROR\n--------------------\n")
 
         if fault == Faults.DISPENSING_CUP_REMOVED:
-            self.LCDDisplay.pushString("Cup removed.")
+            self.lcd.pushString("Cup removed.")
         elif fault == Faults.DISPENSING_WATER_SHORTAGE:
-            self.LCDDisplay.pushString("Water shortage.")
+            self.lcd.pushString("Water shortage.")
         elif fault == Faults.DISPENSING_SYRUP_SHORTAGE:
-            self.LCDDisplay.pushString("Syrup shortage.")
+            self.lcd.pushString("Syrup shortage.")
         elif fault == Faults.SELECTION_TEMP_TOO_HIGH:
-            self.LCDDisplay.pushString("Temperature too high.")
+            self.lcd.pushString("Temperature too high.")
         elif fault == Faults.SELECTION_INVALID:
-            self.LCDDisplay.pushString("Invalid selection.")
+            self.lcd.pushString("Invalid selection.")
         # Keeps the fluid om the given temp
 
-        self.LCDDisplay.pushString("\nPress # to continue.")
+        self.lcd.pushString("\nPress # to continue.")
 
         if self.latestKeypress == '#':
             self.state = States.IDLE
             self.fault = Faults.NONE
 
     def heaterOnTemp(self, targetTemperature: float) -> None:
-        currentTemprature = self.Temperature.getAverage(3)
+        currentTemprature = self.temperature.getAverage(3)
         if currentTemprature < targetTemperature:
-            self.Heater.switchOn()
+            self.heater.switchOn()
         else:
-            self.Heater.switchOff()
+            self.heater.switchOff()
 
     # Keeps the fluid om the given colour
     def setLevel(self, targetLevelWater, targetLevelSyrup) -> None:
         if self.currentLevelWater < targetLevelWater:
-            self.PumpA.switchOn()
-            self.ValveA.switchOff()
+            self.pumpA.switchOn()
+            self.valveA.switchOff()
             self.currentLevelWater += 1
         else:
-            self.PumpA.switchOff()
-            self.ValveA.switchOn()
+            self.pumpA.switchOff()
+            self.valveA.switchOn()
 
         if self.currentLevelSyrup < targetLevelSyrup:
-            self.PumpB.switchOn()
-            self.ValveB.switchOff()
+            self.pumpB.switchOn()
+            self.valveB.switchOff()
             self.currentLevelSyrup += 1
         else:
-            self.PumpB.switchOff()
-            self.ValveB.switchOn()
+            self.pumpB.switchOff()
+            self.valveB.switchOn()
 
-        
     def shutFluid(self) -> None:
-        self.PumpA.switchOff()
-        self.PumpB.switchOff()
-        self.ValveA.switchOn()
-        self.ValveB.switchOn()
+        self.pumpA.switchOff()
+        self.pumpB.switchOff()
+        self.valveA.switchOn()
+        self.valveB.switchOn()
 
     def updateLeds(self) -> None:
-        if self.PumpA.isOn() and not self.ValveA.isOn():
-            self.LedGreenA.switchOn()
-            self.LedRedA.switchOff()
+        if self.pumpA.isOn() and not self.valveA.isOn():
+            self.ledGreenA.switchOn()
+            self.ledRedA.switchOff()
         else:
-            self.LedGreenA.switchOff()
-            self.LedRedA.switchOn()
+            self.ledGreenA.switchOff()
+            self.ledRedA.switchOn()
 
-        if self.PumpB.isOn() and not self.ValveB.isOn():
-            self.LedGreenB.switchOn()
-            self.LedRedB.switchOff()
+        if self.pumpB.isOn() and not self.valveB.isOn():
+            self.ledGreenB.switchOn()
+            self.ledRedB.switchOff()
         else:
-            self.LedGreenB.switchOff()
-            self.LedRedB.switchOn()
+            self.ledGreenB.switchOff()
+            self.ledRedB.switchOn()
 
-        if self.PumpA.isOn() and not self.ValveA.isOn() and self.PumpB.isOn() and not self.ValveB.isOn() and self.Cup.readValue():
-            self.LedGreenM.switchOff()
-            self.LedYellowM.switchOn()
+        if self.pumpA.isOn() and not self.valveA.isOn() and self.pumpB.isOn() and not self.valveB.isOn() and self.cup.readValue():
+            self.ledGreenM.switchOff()
+            self.ledYellowM.switchOn()
         else:
-            self.LedGreenM.switchOn()
-            self.LedYellowM.switchOff()
+            self.ledGreenM.switchOn()
+            self.ledYellowM.switchOff()
 
     def setCupValue(self, value: float) -> float:
         return value + value / (value/3.0)
