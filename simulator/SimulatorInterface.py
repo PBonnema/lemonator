@@ -83,9 +83,11 @@ class SimulatorInterface(Interface):
             return self.object.measure()
 
         def getAverage(self, numberOfReads) -> float:
-            if self.buffer.__len__() < numberOfReads:
-                numberOfReads = self.buffer.__len__()
-            return sum(self.buffer[-numberOfReads:]) / numberOfReads
+            if self.buffer.__len__() != 0:
+                if self.buffer.__len__() < numberOfReads:
+                    numberOfReads = self.buffer.__len__()
+                return sum(self.buffer[-numberOfReads:]) / numberOfReads
+            raise ValueError("Sensor buffer is empty")    
 
         def update(self) -> None:
             self.object.update()
