@@ -7,6 +7,8 @@ import CustomController
 import Gui
 import Constants
 
+from time import sleep
+
 from enum import Enum
 
 # Here is the simulator assigned
@@ -40,6 +42,8 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.targetLevelWater, "")
         self.assertEqual(self.ctl.targetLevelSyrup, "")
         self.assertEqual(self.ctl.targetHeat, "")
+        self.assertEqual(self.ctl.currentLevelWater, 0)
+        self.assertEqual(self.ctl.currentLevelSyrup, 0)
 
     def test_controller_init_fault_state(self):
         self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
@@ -99,8 +103,10 @@ class TestStateTransitions(TestCase):
         self.ctl.keypad.push('#')
         self.ctl.update()
 
-        self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
-        self.assertEqual(self.ctl.targetLevelSyrup, 22.727272727272727)
+        #self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
+        self.assertAlmostEqual(self.ctl.targetLevelSyrup, 22.72, 1)
+        #self.assertEqual(self.ctl.targetLevelSyrup, 22.727272727272727)
+        self.assertAlmostEqual(self.ctl.targetLevelWater, 52.72, 1)
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
 
@@ -168,7 +174,66 @@ class TestStateTransitions(TestCase):
         self.assertAlmostEqual(self.ctl.liquidLevelWater, temp-self.ctl.currentLevelWater)
 
     def test_controller_dispensing(self):
-        pass
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.ctl.keypad.push('2')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
+        self.assertTrue("%" in list(self.ctl.lcd.getLines())[2])
+
+        latestLevel = self.ctl.level.readValue()
+
+        self.assertIsInstance(latestLevel, float)
+
+        for _i in range(10000):
+            self.ctl.update()
+            # sleep(1)
+
+        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
+
+        self.assertEqual(self.ctl.currentLevelWater, self.ctl.targetLevelWater)
+        #self.assertGreater(self.ctl.level.readValue(), latestLevel)
 
     def test_controller_dispensing_fault_cup_removed(self):
-        pass
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.ctl.keypad.push('2')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.ctl.cup.set(False)
+        self.ctl.update()
+
+        self.assertEqual(
+            self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
