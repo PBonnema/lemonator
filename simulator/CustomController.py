@@ -122,9 +122,12 @@ class Controller:
             self.heaterOnTemp(float(self.targetHeat) / 20.0)
 
         if self.pumpB.isOn() or self.pumpA.isOn():
-            if int(self.liquidLevelSyrup) <= 0 or int(self.liquidLevelWater) <= 0:
+            if int(self.liquidLevelSyrup) <= 0:
                 self.shutFluid()
-                self.fault = Faults.DISPENSING_WATER_SHORTAGE
+                self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
+            if int(self.liquidLevelWater) <= 0:
+                self.shutFluid()
+                self.flault = Faults.DISPENSING_WATER_SHORTAGE
 
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
@@ -157,6 +160,8 @@ class Controller:
         if self.latestKeypress == 'A':
             self.targetLevelWater = ""
             self.targetLevelSyrup = ""
+            self.currentLevelSyrup = 0
+            self.currentLevelWater = 0
 
             self.state = States.WAITING_FOR_CUP
 
@@ -260,8 +265,6 @@ class Controller:
         if (self.currentLevelWater - self.targetLevelWater) >= 0 and (self.currentLevelSyrup - self.targetLevelSyrup) >= 0:
             self.shutFluid()
             self.state = States.IDLE
-            self.currentLevelSyrup = 0
-            self.currentLevelWater = 0
 
         self.progress.next()
 
