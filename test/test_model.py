@@ -119,6 +119,24 @@ class TestStateTransitions(TestCase):
         self.assertEqual(
             self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
 
+    def test_controller_select_too_high_heater(self):
+        self.ctl.keypad.push('D')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('1')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(
+            self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
+
     def test_controller_dispensing(self):
         pass
 

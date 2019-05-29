@@ -95,6 +95,7 @@ class Controller:
 
         self.targetLevelWater = ""
         self.targetLevelSyrup = ""
+        self.displayAbleTargetWater = ""
         self.currentLevelWater = 0
         self.currentLevelSyrup = 0
 
@@ -119,6 +120,11 @@ class Controller:
 
         if self.targetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
             self.heaterOnTemp(float(self.targetHeat) / 20.0)
+        
+        if self.pumpB.isOn() or self.pumpA.isOn():
+            if int(self.liquidLevelSyrup) <= 0 or int(self.liquidLevelWater) <= 0:
+                self.shutFluid()
+                self.fault = Faults.DISPENSING_WATER_SHORTAGE
 
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
@@ -181,6 +187,7 @@ class Controller:
             self.targetLevelWater += self.latestKeypress
 
         self.lcd.pushString(" ml (#)\n")
+        
 
         self.lcd.pushString(
             "Syrup: " + str(self.targetLevelSyrup) + " ml")
@@ -190,6 +197,7 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
+            self.displayAbleTargetWater = self.targetLevelWater
             self.targetLevelWater = self.correctValue(float(self.targetLevelWater))
 
             if self.targetLevelWater > self.liquidLevelWater:
@@ -199,7 +207,7 @@ class Controller:
 
     def enterSelectionTwoState(self) -> None:
         self.lcd.pushString(
-                "Water: " + str(int(self.targetLevelWater)) + " ml\n")
+                "Water: " + str(int(self.displayAbleTargetWater)) + " ml\n")
         self.lcd.pushString("Syrup: " + str(self.targetLevelSyrup))
 
         if self.latestKeypress.isdigit():
@@ -215,7 +223,7 @@ class Controller:
 
             self.targetLevelSyrup = self.correctValue(float(self.targetLevelSyrup))         
 
-            if self.targetLevelSyrup > self.liquidLevelSyrup:
+            if float(self.targetLevelSyrup) > self.liquidLevelSyrup:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             else:
                 self.state = States.DISPENSING
@@ -246,9 +254,6 @@ class Controller:
         self.setLevel(self.targetLevelWater,self.targetLevelSyrup)
 
         self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)) + "%")
-        
-        print(f"Syrup: " + str(self.currentLevelSyrup) + " : " + str(self.targetLevelSyrup) + " |  Water: " + str(self.currentLevelWater) + " : " + str(self.targetLevelWater) + " - " + str(self.level.readValue()*33.3))
-        sys.stdout.flush()
 
         if (self.currentLevelWater - self.targetLevelWater) >= 0 and (self.currentLevelSyrup - self.targetLevelSyrup) >= 0:
             self.shutFluid()
@@ -311,6 +316,7 @@ class Controller:
             self.pumpA.switchOn()
             self.valveA.switchOff()
             self.currentLevelWater += 1
+            self.liquidLevelWater -= 1
         else:
             self.pumpA.switchOff()
             self.valveA.switchOn()
@@ -319,6 +325,7 @@ class Controller:
             self.pumpB.switchOn()
             self.valveB.switchOff()
             self.currentLevelSyrup += 1
+            self.liquidLevelSyrup -= 1
         else:
             self.pumpB.switchOff()
             self.valveB.switchOn()
