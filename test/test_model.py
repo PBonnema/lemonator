@@ -137,6 +137,36 @@ class TestStateTransitions(TestCase):
         self.assertEqual(
             self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
 
+
+    def test_controller_dispensing_liquid_updates_vessel(self):
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('1')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+        self.ctl.keypad.push('1')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.liquidLevelWater, 2000)
+        temp = self.ctl.liquidLevelWater
+       
+        for _ in range(1100):
+            self.ctl.update()
+
+        self.assertAlmostEqual(self.ctl.liquidLevelWater, temp-self.ctl.currentLevelWater)
+
     def test_controller_dispensing(self):
         pass
 
