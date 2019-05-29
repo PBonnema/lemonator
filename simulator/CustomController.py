@@ -190,7 +190,8 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelWater = self.correctValue(float(self.targetLevelWater))
+            self.targetLevelWater = self.correctValue(
+                float(self.targetLevelWater))
 
             if self.targetLevelWater > self.liquidLevelWater:
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
@@ -199,7 +200,7 @@ class Controller:
 
     def enterSelectionTwoState(self) -> None:
         self.lcd.pushString(
-                "Water: " + str(int(self.targetLevelWater)) + " ml\n")
+            "Water: " + str(int(self.targetLevelWater)) + " ml\n")
         self.lcd.pushString("Syrup: " + str(self.targetLevelSyrup))
 
         if self.latestKeypress.isdigit():
@@ -213,7 +214,8 @@ class Controller:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
-            self.targetLevelSyrup = self.correctValue(float(self.targetLevelSyrup))         
+            self.targetLevelSyrup = self.correctValue(
+                float(self.targetLevelSyrup))
 
             if self.targetLevelSyrup > self.liquidLevelSyrup:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
@@ -227,7 +229,7 @@ class Controller:
             self.lcd.putc(self.latestKeypress)
             self.targetHeat += self.latestKeypress
 
-        self.lcd.pushString(" C (#)")
+        self.lcd.pushString(" °C (#)")
 
         if self.latestKeypress == '#':
             if not self.targetHeat.isnumeric() or int(self.targetHeat) <= 0 or int(self.targetHeat) >= 100:
@@ -243,12 +245,10 @@ class Controller:
             self.fault = Faults.DISPENSING_CUP_REMOVED
             return
 
-        self.setLevel(self.targetLevelWater,self.targetLevelSyrup)
+        self.setLevel(self.targetLevelWater, self.targetLevelSyrup)
 
-        self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)) + "%")
-        
-        print(f"Syrup: " + str(self.currentLevelSyrup) + " : " + str(self.targetLevelSyrup) + " |  Water: " + str(self.currentLevelWater) + " : " + str(self.targetLevelWater) + " - " + str(self.level.readValue()*33.3))
-        sys.stdout.flush()
+        self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +
+                                                                                self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)) + "%")
 
         if (self.currentLevelWater - self.targetLevelWater) >= 0 and (self.currentLevelSyrup - self.targetLevelSyrup) >= 0:
             self.shutFluid()
@@ -322,7 +322,7 @@ class Controller:
         else:
             self.pumpB.switchOff()
             self.valveB.switchOn()
-        
+
     def shutFluid(self) -> None:
         self.pumpA.switchOff()
         self.pumpB.switchOff()
