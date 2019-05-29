@@ -247,7 +247,7 @@ class Controller:
                 self.state = States.DISPENSING_WATER
 
     def enterHeatSelectionState(self) -> None:
-        self.lcd.pushString("Heat: " + str(self.targetHeat))
+        self.lcd.pushString(f"Heat: {self.targetHeat}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -313,10 +313,8 @@ class Controller:
             self.state = States.IDLE
 
     def displayStatsState(self) -> None:
-        self.lcd.pushString(
-            str(round(self.liquidLevelWater)) + " ml <|> ")
-        self.lcd.pushString(
-            str(round(self.liquidLevelSyrup)) + " ml\n")
+        self.lcd.pushString(f"{round(self.liquidLevelWater)} ml <|> ")
+        self.lcd.pushString(f"{round(self.liquidLevelSyrup)} ml\n")
         self.lcd.pushString("Press # to exit.")
 
         if self.latestKeypress == '#':
