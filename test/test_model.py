@@ -168,18 +168,13 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
         self.assertTrue("%" in list(self.ctl.lcd.getLines())[2])
 
-        latestLevel = self.ctl.level.readValue()
-
-        self.assertIsInstance(latestLevel, float)
-
-        for _i in range(10000):
+        for _i in range(1000):
             self.ctl.update()
-            # sleep(1)
 
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
-        self.assertEqual(self.ctl.currentLevelWater, self.ctl.targetLevelWater)
-        #self.assertGreater(self.ctl.level.readValue(), latestLevel)
+        self.assertAlmostEqual(self.ctl.currentLevelWater,
+                               self.ctl.targetLevelWater, 0)
 
     def test_controller_dispensing_fault_cup_removed(self):
         self.ctl.keypad.push('A')
