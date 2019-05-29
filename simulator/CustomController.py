@@ -185,7 +185,7 @@ class Controller:
                 "Please place a cup\nto continue...\n")
 
     def enterSelectionOneState(self) -> None:
-        self.lcd.pushString("Water: " + str(self.targetLevelWater))
+        self.lcd.pushString(f"Water: {self.targetLevelWater}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -193,8 +193,7 @@ class Controller:
 
         self.lcd.pushString(" ml (#)\n")
 
-        self.lcd.pushString(
-            "Syrup: " + str(self.targetLevelSyrup) + " ml")
+        self.lcd.pushString(f"Syrup: {self.targetLevelSyrup} ml")
 
         if self.latestKeypress == '#':
             if not self.targetLevelWater.isnumeric() or int(self.targetLevelWater) <= 0:
@@ -211,9 +210,8 @@ class Controller:
                 self.state = States.WAITING_USER_SELECTION_TWO
 
     def enterSelectionTwoState(self) -> None:
-        self.lcd.pushString(
-            "Water: " + str(int(self.displayAbleTargetWater)) + " ml\n")
-        self.lcd.pushString("Syrup: " + str(self.targetLevelSyrup))
+        self.lcd.pushString(f"Water: {int(self.displayAbleTargetWater)} ml\n")
+        self.lcd.pushString(f"Syrup: {self.targetLevelSyrup}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -235,7 +233,7 @@ class Controller:
                 self.state = States.DISPENSING
 
     def enterHeatSelectionState(self) -> None:
-        self.lcd.pushString("Heat: " + str(self.targetHeat))
+        self.lcd.pushString(f"Heat: {self.targetHeat}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -259,8 +257,8 @@ class Controller:
 
         self.setLevel(self.targetLevelWater, self.targetLevelSyrup)
 
-        self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +
-                                                                                self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)) + "%")
+        self.lcd.pushString(f"     ({self.progress.get()}) {round((self.currentLevelSyrup +
+                                                                                self.currentLevelWater)/(self.targetLevelWater + self.targetLevelSyrup)*100.0)}%")
 
         if (self.currentLevelWater - self.targetLevelWater) >= 0 and (self.currentLevelSyrup - self.targetLevelSyrup) >= 0:
             self.shutFluid()
@@ -275,10 +273,8 @@ class Controller:
             self.state = States.IDLE
 
     def displayStatsState(self) -> None:
-        self.lcd.pushString(
-            str(round(self.liquidLevelWater)) + " ml <|> ")
-        self.lcd.pushString(
-            str(round(self.liquidLevelSyrup)) + " ml\n")
+        self.lcd.pushString(f"{round(self.liquidLevelWater)} ml <|> ")
+        self.lcd.pushString(f"{round(self.liquidLevelSyrup)} ml\n")
         self.lcd.pushString("Press # to exit.")
 
         if self.latestKeypress == '#':
