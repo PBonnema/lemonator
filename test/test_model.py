@@ -206,3 +206,53 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(
             self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
+
+    def test_controller_select_wrong_amount_water(self):
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
+    
+    def test_controller_select_wrong_amount_syrup(self):
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('5')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_SYRUP_SHORTAGE)
