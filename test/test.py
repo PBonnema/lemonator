@@ -391,7 +391,7 @@ class TestKeypad(TestCase):
 		result = target.popAll()
 
 		# Assert
-		self.assertEquals(result, '')
+		self.assertEqual(result, '')
 		
 	def test_popAll_returns_all_chars_before_null_char(self):
 		# Arrange
@@ -406,7 +406,7 @@ class TestKeypad(TestCase):
 		result = target.popAll()
 
 		# Assert
-		self.assertEquals(result, 'abc')
+		self.assertEqual(result, 'abc')
 		
 	def test_popAll_ignores_all_after_first_null_char(self):
 		# Arrange
@@ -421,7 +421,7 @@ class TestKeypad(TestCase):
 		result = target.popAll()
 
 		# Assert
-		self.assertEquals(result, 'a')
+		self.assertEqual(result, 'a')
 		
 	def test_popAll_returns_empty_string_if_first_char_is_null_char(self):
 		# Arrange
@@ -436,7 +436,7 @@ class TestKeypad(TestCase):
 		result = target.popAll()
 
 		# Assert
-		self.assertEquals(result, '')
+		self.assertEqual(result, '')
 		
 	def test_readBuffer_pushes_pipe_char_then_returns_empty_string_if_popped_char_is_a_pipe(self):
 		# Arrange
