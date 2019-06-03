@@ -90,14 +90,12 @@ class Controller:
         self.lcd.clear()
         self.keypad = control.make(Interface.Keypad, 'keypad')
 
-        # Sensor array for update function calls
-        self.objects = [self.colour, self.temperature, self.level]
+        # Array for update function calls
+        self.objects = [self.colour, self.temperature, self.level, self.pumpA, self.pumpB, self.valveA, self.valveB]
 
         self.inputTargetLevelWater = ""
         self.inputTargetLevelSyrup = ""
-        self.beginLevelCup = self.level.readValue()
-
-        
+        self.beginLevelCup = self.level.readValue()   
         self.currentLevelCup = self.level.readValue()
 
         self.liquidLevelWater = Constants.liquidMax
@@ -178,10 +176,8 @@ class Controller:
         if self.latestKeypress == 'A':
             self.inputTargetLevelWater = ""
             self.inputTargetLevelSyrup = ""
-            self.correctedTargetLevelWater = ""
-            self.correctedTargetLevelSyrup = ""
-            self.currentLevelSyrup = 0
-            self.currentLevelWater = 0
+            self.beginLevelCup = self.level.readValue()   
+            self.currentLevelCup = self.level.readValue()
 
             self.state = States.WAITING_FOR_CUP
 
@@ -272,15 +268,15 @@ class Controller:
             return
 
         self.startWaterPump()
- 
         self.updateDisplay()
+
+        self.test = ((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor)
 
         if (((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater):
             self.shutFluid()
             self.currentLevelCup = self.level.readValue()
+            self.liquidLevelWater -= float(self.inputTargetLevelWater)
             self.state = States.DISPENSING_SYRUP
-
-
 
         self.progress.next()
 
@@ -295,6 +291,7 @@ class Controller:
         if (((self.level.readValue() - self.currentLevelCup)*Constants.levelVoltageFactor) - self.inputTargetLevelSyrup) >= 0:
             self.shutFluid()
             self.beginLevelCup = self.level.readValue()
+            self.liquidLevelSyrup -= float(self.inputTargetLevelSyrup)
             self.state = States.IDLE
             
         self.progress.next()
@@ -386,3 +383,5 @@ class Controller:
         progress = round(((self.level.readValue()-self.beginLevelCup)*Constants.levelVoltageFactor/(self.inputTargetLevelWater+self.inputTargetLevelSyrup))*100.0)
         if progress <= 100:
             self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(progress) + "%")
+        else:
+            self.lcd.pushString(f"      Done!      ")
