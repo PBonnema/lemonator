@@ -98,7 +98,7 @@ class Controller:
         self.keypad = control.make(Interface.Keypad, 'keypad')
 
         # Array for update function calls so that during the run all objects will be updated
-        self.objects = [self.colour, self.temperature, self.level, self.cup, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.heater, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
+        self.objects = [self.colour, self.temperature, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.heater, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
 
         # Set default values
         self.inputTargetLevelWater = ""
@@ -122,6 +122,8 @@ class Controller:
         # Update all objects to represent the current simulator state.
         for i in self.objects:
             i.update()
+
+        #self.validateCupAppearance()
 
         self.latestKeypress = self.keypad.pop()
 
@@ -413,7 +415,7 @@ class Controller:
             self.ledGreenM.switchOn()
             self.ledYellowM.switchOff()
     
-    # Updates the progress procentage and displays its new value on the display.
+    # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:
         progress = round(((self.level.readValue()-self.beginLevelCup)*Constants.levelVoltageFactor/(self.inputTargetLevelWater+self.inputTargetLevelSyrup))*100.0)
         if progress <= 100:

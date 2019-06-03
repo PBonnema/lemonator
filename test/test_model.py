@@ -158,15 +158,15 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
         self.ctl.keypad.push('#')
         self.ctl.update()
-        self.assertEqual(self.ctl.liquidLevelWater, 2000)
 
+        self.assertEqual(self.ctl.liquidLevelWater, 2000)
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
 
-        temp = self.ctl.liquidLevelWater
-
-        for _ in range(1100):
+        for _ in range(150):
             self.ctl.update()
 
+        
+        self.assertEqual(self.ctl.liquidLevelWater, 1900)
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
     def test_controller_dispensing_fault_cup_removed(self):
@@ -286,8 +286,10 @@ class TestStateTransitions(TestCase):
 
         self.ctl.keypad.push('B')
         self.ctl.update()
+        self.ctl.update()
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPLAY_STATS)
-        #self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "1980 ml <|> 1990 ml")
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "1980 ml <|> 1990 ml")
+
         self.assertEqual(self.ctl.liquidLevelWater, 1980)
         self.assertEqual(self.ctl.liquidLevelSyrup, 1990)
