@@ -167,13 +167,7 @@ class TestStateTransitions(TestCase):
         for _ in range(1100):
             self.ctl.update()
 
-        #self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-        #self.assertAlmostEqual(self.ctl.currentLevelWater,
-        #                       self.ctl.inputTargetLevelWater, 0)
-
-        #self.assertAlmostEqual(self.ctl.liquidLevelWater,
-         #                      temp-self.ctl.currentLevelWater)
+        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
     def test_controller_dispensing_fault_cup_removed(self):
         self.ctl.keypad.push('A')
