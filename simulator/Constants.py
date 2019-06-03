@@ -53,4 +53,4 @@ graphs = {"temp": (graphX, graphY, graphW, graphH, RED),
           "valveB": (graphX + 3 * (graphM + graphW), graphY + (graphM + graphH), graphW, graphH, (120, 0, 120))
           }
 
-levelVoltageFactor = 625
+levelVoltageFactor = 625.0
