@@ -17,15 +17,15 @@ class Controller:
             Interface = controlInterface
         control = Interface.Factory(self)
 
-        #Creation of objects 
-        #effectors 
+        #Creation of objects
+        #effectors
         self.PumpA       = control.make(Interface.Effector, 'pumpA')
         self.PumpB       = control.make(Interface.Effector, 'pumpB')
         self.ValveA      = control.make(Interface.Effector, 'valveA')
         self.ValveB      = control.make(Interface.Effector, 'valveB')
         self.Heater      = control.make(Interface.Effector, 'heater')
 
-        #LED's    
+        #LED's
         self.LedRedA     = control.make(Interface.LED, 'redA')
         self.LedGreenA   = control.make(Interface.LED, 'greenA')
         self.LedRedB     = control.make(Interface.LED, 'redB')
@@ -49,10 +49,10 @@ class Controller:
 
 
     def update(self) -> None:
-        #Runs the test func 
+        #Runs the test func
         self.testFunc()
 
-    
+
     def testFunc(self, timestamp = 0) -> None:
         print(f"Colour:      " + str(self.Colour.readValue()))
         print(f"Level:       " + str(self.Level.readValue()))
@@ -75,19 +75,19 @@ class Controller:
         currentColour = self.Colour.readValue()
         currentLevel = self.Level.readValue()
         if currentColour < targetColour:
-            if currentLevel <= targetLevel: 
+            if currentLevel <= targetLevel:
                 self.PumpA.switchOff()
                 self.PumpB.switchOn()
             else:
                 self.shutFluid()
-        elif currentColour > targetColour: 
-            if currentLevel <= targetLevel:                
+        elif currentColour > targetColour:
+            if currentLevel <= targetLevel:
                 self.PumpA.switchOn()
                 self.PumpB.switchOff()
             else:
                 self.shutFluid()
         elif currentColour == targetColour:
-            if currentLevel <= targetLevel:  
+            if currentLevel <= targetLevel:
                 self.PumpA.switchOn()
                 self.PumpB.switchOn()
             else:
@@ -109,7 +109,7 @@ class Controller:
         self.ValveA.switchOff()
         self.ValveB.switchOff()
         self.Heater.switchOff()
-    
+
     def updateLeds(self) -> None:
         if self.PumpA.isOn() == True and self.ValveA.isOn() == False:
             self.LedGreenA.switchOn()

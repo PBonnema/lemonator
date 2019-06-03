@@ -1,10 +1,9 @@
 import Controller
-import time
 from Interface import Interface
 
 #Superclass with Constructor and Update function
 class SimulatorInterface(Interface):
-    class BaseClass():      
+    class BaseClass():
         def __init__(self, object, controller : Controller):
             self.object = object
             self.controller = controller
@@ -18,16 +17,16 @@ class SimulatorInterface(Interface):
                 if not (e.startswith('__') and e.endswith('__')):
                     print(e)
             print("\n==========================\n")
-                
-   
+
+
     class Effector(BaseClass):
         def __init__(self, controller : Controller, objectID : str):
             super().__init__(controller._Controller__effectors[objectID], controller)
-            
+
         #Sets the Effector state to on
         def switchOn(self) -> None:
             self.object.switchOn()
-        
+
         #Sets the Effector state to off
         def switchOff(self) -> None:
             self.object.switchOff()
@@ -49,13 +48,12 @@ class SimulatorInterface(Interface):
         #Returns data of the currently on the lcd
         def getLines(self) -> str:
             return self.object.getLines()
-        
+
         #Sets a string of data on the LCD
         def pushString(self, s: str) -> None:
             self.object.pushString(s)
 
         #Sets 4 lines of white spaces on the lcd
-        
         def clear(self) -> None:
             self.object.clear()
 
@@ -71,7 +69,7 @@ class SimulatorInterface(Interface):
         def readValue(self) -> float:
             return self.object.readValue()
 
-        #Returns the senor data with unit of measurment 
+        #Returns the senor data with unit of measurement
         def measure(self) -> str:
             return self.object.measure()
 
@@ -79,7 +77,7 @@ class SimulatorInterface(Interface):
         #Returns if the cup is presenced
         def readValue(self) -> bool:
             return self.object.readValue()
-            
+
     class Keypad(Sensor):
         #Sets a singel char in the keypad (keypress controllerulation)
         def push(self, c: str) -> None:
@@ -93,7 +91,7 @@ class SimulatorInterface(Interface):
         def pushString(self, s: str) -> None:
             for c in s:
                 self.push(c)
-        
+
         #Pops the complete keypad buffer
         def popAll(self) -> str:
             s = ''
