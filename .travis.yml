@@ -7,8 +7,6 @@ python:
 
 # command to install dependencies
 install:
-#   - pip install pipreqs
-#   - pipreqs --debug --ignore practicum-atp,.git,.vscode .
   - pip install -r requirements.txt
 
 # before_script:

@@ -1,5 +1,4 @@
 import Controller
-import time
 from Interface import Interface
 
 # Superclass with Constructor and Update function
@@ -57,7 +56,6 @@ class SimulatorInterface(Interface):
             self.object.pushString(s)
 
         # Sets 4 lines of white spaces on the lcd
-
         def clear(self) -> None:
             self.object.clear()
 
@@ -74,7 +72,7 @@ class SimulatorInterface(Interface):
         def readValue(self) -> float:
             return self.object.readValue()
 
-        # Returns the senor data with unit of measurment
+        # Returns the senor data with unit of measurement
         def measure(self) -> str:
             return self.object.measure()
 
@@ -95,27 +93,27 @@ class SimulatorInterface(Interface):
         # Pushes a string to the keypad
         def pushString(self, s: str) -> None:
             for c in s:
-                self.object.push(c)
+                self.push(c)
 
         # Pops the complete keypad buffer
         def popAll(self) -> str:
-            s = ""
+            s = ''
             charBuffer = ''
             while True:
-                charBuffer = self.object.pop()
+                charBuffer = self.pop()
                 if charBuffer == '\x00':
                     return s
                 s += charBuffer
 
         def readBuffer(self) -> str:
-            s = ""
+            s = ''
             charBuffer = ''
             self.push('|')
             while True:
-                charBuffer = self.object.pop()
+                charBuffer = self.pop()
                 if charBuffer == '|':
                     return s
-                self.object.push(charBuffer)
+                self.push(charBuffer)
                 s += charBuffer
 
     class Factory:
