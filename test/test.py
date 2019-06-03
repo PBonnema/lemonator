@@ -4,17 +4,36 @@
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
 
-# import Simulator
-# import Controller
+import Simulator
+import Controller
+
+from enum import Enum
 from SimulatorInterface import SimulatorInterface
 
+class TestBaseClass(TestCase):
+    def test_can_create(self):
+        # Arrange
+        obj = Mock(spec_set=[''])
+        controller = Mock(spec_set=[''])
 
-# sensors = Simulator._Simulator__plant._sensors
-# effectors = Simulator._Simulator__plant._effectors
+        # Act
+        instance = SimulatorInterface.BaseClass(obj, controller)
 
+        # Assert
+        self.assertIs(obj, instance.object)
+        self.assertIs(controller, instance.controller)
 
-# controller = Controller(sensors, effectors, SimulatorInterface)
-# instance = SimulatorInterface.BaseClass(effectors.PumpA, controller)
+    def test_update_calls_update_on_object(self):
+        # Arrange
+        obj = Mock(spec_set=['update'])
+        controller = Mock(spec_set=[''])
+        target = SimulatorInterface.BaseClass(obj, controller)
+
+        # Act
+        target.update()
+
+        # Assert
+        obj.update.assert_called_once()
 
 class TestBaseClass(TestCase):
     def test_can_create(self):
@@ -208,7 +227,7 @@ class TestLCD(TestCase):
         # Assert
         obj.clear.assert_called_once()
 
-    def test_put_puts_the_character_in_the_object(self):
+    def test_putc_puts_the_character_in_the_object(self):
         # Arrange
         char = 'a'
         objectId = 'objId'
@@ -218,7 +237,7 @@ class TestLCD(TestCase):
         target = SimulatorInterface.LCD(controller, objectId)
 
         # Act
-        target.put(char)
+        target.putc(char)
 
         # Assert
         obj.put.assert_called_once_with('a')
@@ -376,7 +395,9 @@ class TestKeypad(TestCase):
         target.pushString(string)
 
         # Assert
-        self.assertListEqual(obj.push.mock_calls, [call('a'), call('b'), call('1'), call('2')])
+        self.assertListEqual(obj.push.mock_calls, [
+            call('a'), call('b'), call('1'), call('2')
+        ])
 
     def test_popAll_returns_empty_string_if_only_char_is_null_char(self):
         # Arrange
@@ -468,8 +489,12 @@ class TestKeypad(TestCase):
         result = target.readBuffer()
 
         # Assert
-        self.assertListEqual(obj.pop.mock_calls, [call(), call(), call(), call(), call()])
-        self.assertListEqual(obj.push.mock_calls, [call('|'), call('a'), call('b'), call('c'), call('d')])
+        self.assertListEqual(obj.pop.mock_calls, [
+            call(), call(), call(), call(), call()
+        ])
+        self.assertListEqual(obj.push.mock_calls, [
+            call('|'), call('a'), call('b'), call('c'), call('d')
+        ])
         self.assertEqual(result, 'abcd')
 
 class TestSimulatorControlFactory(TestCase):
