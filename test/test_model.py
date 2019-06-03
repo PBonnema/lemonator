@@ -103,9 +103,7 @@ class TestStateTransitions(TestCase):
         self.ctl.keypad.push('#')
         self.ctl.update()
 
-        #self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
         self.assertAlmostEqual(self.ctl.targetLevelSyrup, 22.72, 1)
-        #self.assertEqual(self.ctl.targetLevelSyrup, 22.727272727272727)
         self.assertAlmostEqual(self.ctl.targetLevelWater, 52.72, 1)
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
@@ -206,3 +204,48 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(
             self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
+
+    def test_controller_view_stats_without_dispense_action(self):
+        self.ctl.keypad.push('B')
+        self.ctl.update()
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
+        self.assertEqual(self.ctl.state, CustomController.States.DISPLAY_STATS)
+
+        self.assertEqual(list(self.ctl.lcd.getLines())
+                         [2].strip(), str(int(Constants.liquidMax)) + " ml <|> " + str(int(Constants.liquidMax)) + " ml")
+
+    def test_controller_view_stats_with_dispense_action(self):
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('2')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+        self.ctl.keypad.push('1')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.state, CustomController.States.DISPENSING)
+
+        for _ in range(1100):
+            self.ctl.update()
+
+        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
+
+        self.ctl.keypad.push('B')
+        self.ctl.update()
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.state, CustomController.States.DISPLAY_STATS)
+        self.assertEqual(list(self.ctl.lcd.getLines())
+                         [2].strip(), "1977 ml <|> 1987 ml")
