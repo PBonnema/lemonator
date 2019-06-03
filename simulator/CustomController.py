@@ -13,10 +13,9 @@ class States(Enum):
     DISPENSING_SYRUP = 5,
     DISPENSING_DONE = 6,
     DISPENSING_FAULT = 7,
-    CALIBRATE = 8,
-    DISPLAY_STATS = 9,
-    WAITING_USER_SELECTION_TWO = 10,
-    WAITING_USER_HEAT_SELECTION = 11
+    DISPLAY_STATS = 8,
+    WAITING_USER_SELECTION_TWO = 9,
+    WAITING_USER_HEAT_SELECTION = 10
 
 
 class Faults(Enum):
@@ -116,16 +115,21 @@ class Controller:
         self.targetHeat = ""
 
     def update(self) -> None:
+        # Update all objects to represent the current simulator state.
         for i in self.objects:
             i.update()
 
         self.latestKeypress = self.keypad.pop()
+
+        # Clear visuals.
         self.lcd.clear()
         self.updateLeds()
 
+        # Check if the heater matches the target temperature.
         if self.targetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
             self.heaterOnTemp(float(self.targetHeat) / 20.0)
 
+        # If the pumps are flowing, validate that there is still enough liquid left. We don't want to be running dry.
         if self.pumpB.isOn() or self.pumpA.isOn():
             if int(self.liquidLevelSyrup) <= 0:
                 self.shutFluid()
@@ -134,6 +138,7 @@ class Controller:
                 self.shutFluid()
                 self.flault = Faults.DISPENSING_WATER_SHORTAGE
 
+        # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
         if self.fault != Faults.NONE:
             self.displayFault(self.fault)
             return
@@ -141,28 +146,35 @@ class Controller:
         self.lcd.pushString(
             "\x0c   Lemonator v1.0\n--------------------\n")
 
+        # Part of the state machine; state handling.
         if self.state == States.IDLE:
+            # Switch to idle state. The machine is ready to receive various actions.
             self.idleState()
         elif self.state == States.WAITING_FOR_CUP:
+            # Someone decided to take a drink, we want to make sure that a cup is present.
             self.waitingForCupState()
         elif self.state == States.WAITING_USER_SELECTION_ONE:
+            # User should select the amount of water.
             self.enterSelectionOneState()
         elif self.state == States.WAITING_USER_SELECTION_TWO:
+            # User should select the amount of syrup.
             self.enterSelectionTwoState()
         elif self.state == States.WAITING_USER_HEAT_SELECTION:
+            # User should select the target heat.
             self.enterHeatSelectionState()
         elif self.state == States.DISPENSING_WATER:
+            # The machine is dispensing water.
             self.dispensingWaterState()
         elif self.state == States.DISPENSING_SYRUP:
+            # The machine is dispensing syrup.
             self.dispensingSyrupState()
-        elif self.state == States.CALIBRATE:
-            self.calibrateState()
         elif self.state == States.DISPLAY_STATS:
+            # We display the machine statistics to the user.
             self.displayStatsState()
 
     def idleState(self) -> None:
         self.lcd.pushString(
-            "A = Start, B = Stats\nC = Calibrate, D = Heat")
+            "A = Start, B = Stats\nD = Heat")
                 
         self.currentLevelCup = self.level.readValue()
 
@@ -178,9 +190,6 @@ class Controller:
 
         if self.latestKeypress == 'B':
             self.state = States.DISPLAY_STATS
-
-        if self.latestKeypress == 'C':
-            self.state = States.CALIBRATE
 
         if self.latestKeypress == 'D':
             self.targetHeat = ""
@@ -264,9 +273,8 @@ class Controller:
             self.state = States.IDLE
 
     def dispensingWaterState(self) -> None:
-        if not self.cup.readValue():
-            self.shutFluid()
-            self.fault = Faults.DISPENSING_CUP_REMOVED
+        # Check if the cup is stil present.
+        if not self.validateCupAppearance():
             return
 
         self.setWaterLevel(self.correctedTargetLevelSyrup)
@@ -275,9 +283,10 @@ class Controller:
             self.liquidLevelWater -= (self.level.readValue() - self.lastKnowLevel) * Constants.levelVoltageFactor
             self.lastKnowLevel = self.level.readValue()
  
+        # Update LCD
         self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +
                                     self.currentLevelWater)/(self.correctedTargetLevelWater + self.correctedTargetLevelSyrup)*100.0)) + "%")
-        if (((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor) - self.inputTargetLevelWater) >= 0:
+        if (((self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor) - self.inputTargetLevelWater) >= 0:
             self.shutFluid()
             self.currentLevelCup = self.level.readValue()
             self.state = States.DISPENSING_SYRUP
@@ -285,9 +294,8 @@ class Controller:
         self.progress.next()
 
     def dispensingSyrupState(self) -> None:
-        if not self.cup.readValue():
-            self.shutFluid()
-            self.fault = Faults.DISPENSING_CUP_REMOVED
+        # Check if the cup is stil present.
+        if not self.validateCupAppearance():
             return
 
         self.setSyrupLevel(self.correctedTargetLevelSyrup)
@@ -296,21 +304,16 @@ class Controller:
             self.liquidLevelSyrup -= (self.level.readValue() - self.lastKnowLevel) * Constants.levelVoltageFactor
             self.lastKnowLevel = self.level.readValue()
       
+        # Update LCD
         self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(round((self.currentLevelSyrup +
                                     self.currentLevelWater)/(self.correctedTargetLevelWater + self.correctedTargetLevelSyrup)*100.0)) + "%")
 
-        if (((self.level.readValue()- self.currentLevelCup)*Constants.levelVoltageFactor) - self.inputTargetLevelSyrup) >= 0:
+        if (((self.level.readValue() - self.currentLevelCup)*Constants.levelVoltageFactor) - self.inputTargetLevelSyrup) >= 0:
             self.shutFluid()
             self.state = States.IDLE
             sys.stdout.flush()
 
         self.progress.next()
-
-    def calibrateState(self) -> None:
-        self.lcd.pushString("Calibration finished!")
-
-        if self.latestKeypress == '#':
-            self.state = States.IDLE
 
     def displayStatsState(self) -> None:
         self.lcd.pushString(f"{round(self.liquidLevelWater)} ml <|> ")
@@ -352,7 +355,7 @@ class Controller:
             self.heater.switchOff()
 
     def setWaterLevel(self, inputTargetLevelWater) -> None:
-        waterLevel = (self.level.readValue() - self.currentLevelCup) *625.0
+        waterLevel = (self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor
         if waterLevel < inputTargetLevelWater:
             self.pumpA.switchOn()
             self.valveA.switchOff()
@@ -361,13 +364,21 @@ class Controller:
             self.valveA.switchOn()
     
     def setSyrupLevel(self, inputTargetLevelSyrup) -> None:
-        syrupLevel = (self.level.readValue() - self.currentLevelCup) *625.0
+        syrupLevel = (self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor
         if syrupLevel < inputTargetLevelSyrup:
             self.pumpB.switchOn()
             self.valveB.switchOff()
         else:
             self.pumpB.switchOff()
-            self.valveB.switchOn()         
+            self.valveB.switchOn()
+
+    def validateCupAppearance(self) -> bool:
+        if not self.cup.readValue():
+            self.shutFluid()
+            self.fault = Faults.DISPENSING_CUP_REMOVED
+            return False
+        return True
+         
 
     def shutFluid(self) -> None:
         self.pumpA.switchOff()
