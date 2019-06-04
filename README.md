@@ -1,4 +1,5 @@
-[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
+master: [![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
+dev: [![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg?branch=dev)](https://coveralls.io/github/PBonnema/lemonator?branch=dev)
 ## The Lemonator
 
 Team members:
