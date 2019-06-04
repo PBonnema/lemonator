@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
 ## The Lemonator
 
 Team members:
