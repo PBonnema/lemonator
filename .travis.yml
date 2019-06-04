@@ -2,7 +2,7 @@ dist: xenial   # required for Python >= 3.7
 language: python
 python: "3.7"
 
-before_install: export PYTHONPATH=${PYTHONPATH}:./simulator/
+before_install: export PYTHONPATH=${PYTHONPATH}:/home/travis/build/PBonnema/lemonator/simulator/
 
 # command to install dependencies
 install: pip install -r requirements.txt
