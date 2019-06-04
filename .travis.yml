@@ -10,8 +10,8 @@ install: pip install -r requirements.txt
 #before_script:
 
 # command to run tests
-script: coverage run --branch --omit=./simulator/*.pyc,./simulator/Interface.py,./simulator/main.py -m unittest -v
-after_success: coveralls --source .
+script: coverage run --branch --source . --omit=./simulator/*.pyc,./simulator/Interface.py,./simulator/main.py -m unittest -v
+after_success: coveralls
 
 # after_failure:
 # after_script:
