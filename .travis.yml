@@ -2,12 +2,10 @@ dist: xenial   # required for Python >= 3.7
 language: python
 python: "3.7"
 
-# before_install:
+before_install: export PYTHONPATH=${PYTHONPATH}:./simulator/
 
 # command to install dependencies
-install:
-  - pip install -e .
-  - pip install -r requirements.txt
+install: pip install -r requirements.txt
 
 #before_script:
 
