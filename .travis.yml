@@ -5,12 +5,14 @@ python: "3.7"
 # before_install:
 
 # command to install dependencies
-install: pip install -r requirements.txt
+install:
+  - pip install -e .
+  - pip install -r requirements.txt
 
 #before_script:
 
 # command to run tests
-script: coverage run --branch --omit=./simulator/*.pyc -m unittest -v
+script: coverage run --branch --omit=./simulator/*.pyc,./simulator/Interface.py,./simulator/main.py -m unittest -v
 after_success: coveralls
 
 # after_failure:
