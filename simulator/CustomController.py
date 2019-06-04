@@ -93,7 +93,7 @@ class Controller:
         self.keypad = control.make(Interface.Keypad, 'keypad')
 
         # Array for update function calls so that during the run all objects will be updated
-        self.objects = [self.colour, self.temperature, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.heater, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
+        self.objects = [self.colour, self.temperature, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
 
         # Set default values
         self.inputTargetLevelWater = ""
@@ -115,8 +115,6 @@ class Controller:
         # Update all objects to represent the current simulator state.
         for i in self.objects:
             i.update()
-
-        #self.validateCupAppearance()
 
         self.latestKeypress = self.keypad.pop()
 

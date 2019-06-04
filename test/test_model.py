@@ -100,9 +100,7 @@ class TestStateTransitions(TestCase):
         self.ctl.keypad.push('#')
         self.ctl.update()
 
-        #self.assertEqual(self.ctl.targetLevelWater, 52.72727272727273)
         self.assertEqual(self.ctl.inputTargetLevelSyrup, 20)
-        #self.assertEqual(self.ctl.targetLevelSyrup, 22.727272727272727)
         self.assertEqual(self.ctl.inputTargetLevelWater, 50)
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
@@ -293,3 +291,71 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(self.ctl.liquidLevelWater, 1980)
         self.assertEqual(self.ctl.liquidLevelSyrup, 1990)
+
+    def test_controller_cup_contents(self):
+        self.ctl.keypad.push('A')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('9')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+        self.ctl.keypad.push('9')
+        self.ctl.update()
+        self.ctl.keypad.push('0')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
+
+        for _ in range(200):
+            self.ctl.update()
+        
+        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
+
+        self.assertAlmostEqual(self.ctl.level.readValue(), 280/Constants.levelVoltageFactor, 1)
+
+
+    def test_controller_heater_input(self):
+        self.ctl.keypad.push('D')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('8')
+        self.ctl.update()
+        self.ctl.keypad.push('9')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        self.assertAlmostEqual(self.ctl.targetHeat, 89.0)
+
+    ''' Temp.readvalue needs work only returns 1.8
+    def test_controller_select_heater_temp(self):
+        self.ctl.keypad.push('D')
+        self.ctl.update()
+
+        self.ctl.cup.set(True)
+        self.ctl.update()
+        self.ctl.keypad.push('9')
+        self.ctl.update()
+        self.ctl.keypad.push('9')
+        self.ctl.update()
+        self.ctl.keypad.push('#')
+        self.ctl.update()
+
+        for _ in range(250):
+            self.ctl.update()
+            temp1 = self.ctl.heater.isOn()
+            temp2 = self.ctl.temperature.readValue()
+            temp3 = self.ctl.temperature.getAverage(10000)
+        
+        self.assertAlmostEqual(self.ctl.temperature.readValue(), 99.0)
+    '''
+
