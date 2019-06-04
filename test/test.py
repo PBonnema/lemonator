@@ -1,39 +1,11 @@
 # pylint: disable=no-self-use, missing-docstring
-# import Effector
-
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch, call
 
 import Simulator
 import Controller
 
-from enum import Enum
 from SimulatorInterface import SimulatorInterface
-
-class TestBaseClass(TestCase):
-    def test_can_create(self):
-        # Arrange
-        obj = Mock(spec_set=[''])
-        controller = Mock(spec_set=[''])
-
-        # Act
-        instance = SimulatorInterface.BaseClass(obj, controller)
-
-        # Assert
-        self.assertIs(obj, instance.object)
-        self.assertIs(controller, instance.controller)
-
-    def test_update_calls_update_on_object(self):
-        # Arrange
-        obj = Mock(spec_set=['update'])
-        controller = Mock(spec_set=[''])
-        target = SimulatorInterface.BaseClass(obj, controller)
-
-        # Act
-        target.update()
-
-        # Assert
-        obj.update.assert_called_once()
 
 class TestBaseClass(TestCase):
     def test_can_create(self):
@@ -66,7 +38,7 @@ class TestEffector(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=[''])
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
 
         # Act
         instance = SimulatorInterface.Effector(controller, objectId)
@@ -80,7 +52,7 @@ class TestEffector(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['switchOn'])
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
         target = SimulatorInterface.Effector(controller, objectId)
 
         # Act
@@ -94,7 +66,7 @@ class TestEffector(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['switchOff'])
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
         target = SimulatorInterface.Effector(controller, objectId)
 
         # Act
@@ -110,7 +82,7 @@ class TestEffector(TestCase):
         obj = Mock(spec_set=['isOn'])
         obj.isOn.return_value = isOnValue
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
         target = SimulatorInterface.Effector(controller, objectId)
 
         # Act
@@ -126,7 +98,7 @@ class TestLED(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=[''])
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
 
         # Act
         instance = SimulatorInterface.LED(controller, objectId)
@@ -140,7 +112,7 @@ class TestLED(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['toggle'])
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
         target = SimulatorInterface.LED(controller, objectId)
 
         # Act
@@ -156,7 +128,7 @@ class TestLED(TestCase):
         obj = Mock(spec_set=['getColour'])
         obj.getColour.return_value = colour
         controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = { objectId: obj }
+        controller._Controller__effectors = {objectId: obj}
         target = SimulatorInterface.LED(controller, objectId)
 
         # Act
@@ -248,7 +220,7 @@ class TestSensor(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=[''])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
 
         # Act
         instance = SimulatorInterface.Sensor(controller, objectId)
@@ -264,7 +236,7 @@ class TestSensor(TestCase):
         obj = Mock(spec_set=['readValue'])
         obj.readValue.return_value = value
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Sensor(controller, objectId)
 
         # Act
@@ -281,7 +253,7 @@ class TestSensor(TestCase):
         obj = Mock(spec_set=['readValue'])
         obj.readValue.return_value = value
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Sensor(controller, objectId)
 
         # Act
@@ -297,7 +269,7 @@ class TestPresenceSensor(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=[''])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
 
         # Act
         instance = SimulatorInterface.PresenceSensor(controller, objectId)
@@ -313,7 +285,7 @@ class TestPresenceSensor(TestCase):
         obj = Mock(spec_set=['readValue'])
         obj.readValue.return_value = value
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.PresenceSensor(controller, objectId)
 
         # Act
@@ -329,7 +301,7 @@ class TestKeypad(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=[''])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
 
         # Act
         instance = SimulatorInterface.Keypad(controller, objectId)
@@ -343,7 +315,7 @@ class TestKeypad(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['push'])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
         char = 'a'
 
@@ -358,7 +330,7 @@ class TestKeypad(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['pop'])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -372,7 +344,7 @@ class TestKeypad(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['push'])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
         string = ''
 
@@ -387,7 +359,7 @@ class TestKeypad(TestCase):
         objectId = 'objId'
         obj = Mock(spec_set=['push'])
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
         string = 'ab12'
 
@@ -405,7 +377,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['pop'])
         obj.pop.return_value = '\x00'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -420,7 +392,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['pop'])
         obj.pop.side_effect = 'abc\x00'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -435,7 +407,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['pop'])
         obj.pop.side_effect = 'a\x00abc\x00'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -450,7 +422,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['pop'])
         obj.pop.side_effect = '\x00abc'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -465,7 +437,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['push', 'pop'])
         obj.pop.return_value = '|'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -482,7 +454,7 @@ class TestKeypad(TestCase):
         obj = Mock(spec_set=['push', 'pop'])
         obj.pop.side_effect = 'abcd|'
         controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = { objectId: obj }
+        controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Keypad(controller, objectId)
 
         # Act
@@ -546,7 +518,8 @@ class TestSimulatorControlFactory(TestCase):
         target = SimulatorInterface.Factory(controller)
 
         # Act
-        def action(): target.make(MockClass)
+        def action():
+            target.make(MockClass)
 
         # Assert
         with self.assertRaises(TypeError) as cm:
