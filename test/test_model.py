@@ -1,20 +1,15 @@
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch, call
+from unittest.mock import MagicMock, Mock, call, patch
 
+import Constants
+import CustomController
 import Simulator
 import SimulatorInterface
-import CustomController
-import Gui
-import Constants
-
-from time import sleep
-
-from enum import Enum
 
 # Here is the simulator assigned
 Interface = SimulatorInterface.SimulatorInterface
 
-# For now, we only test out pumps, valves, displays, keypad and the heater. LED's are out of scope for now...
+# For now, we only test the pumps, valves, displays, keypad and the heater. LED's are out of scope for now...
 
 
 class TestStateTransitions(TestCase):
@@ -358,4 +353,3 @@ class TestStateTransitions(TestCase):
         
         self.assertAlmostEqual(self.ctl.temperature.readValue(), 99.0)
     '''
-

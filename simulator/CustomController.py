@@ -1,30 +1,30 @@
-from Effector import Effector
-from Sensor import Sensor, TemperatureSensor, LevelSensor, ColourSensor, KeyPad
-import sys
+from enum import Enum, auto
+
 import Constants
-from enum import Enum
+from Effector import Effector
+from Sensor import ColourSensor, KeyPad, LevelSensor, Sensor, TemperatureSensor
 
 class States(Enum):
-    IDLE = 0
-    WAITING_FOR_CUP = 1
-    WAITING_USER_SELECTION_ONE = 3
-    DISPENSING_WATER = 4
-    DISPENSING_SYRUP = 5
-    DISPENSING_DONE = 6
-    DISPENSING_FAULT = 7
-    DISPLAY_STATS = 8
-    WAITING_USER_SELECTION_TWO = 9
-    WAITING_USER_HEAT_SELECTION = 10
+    IDLE = auto()
+    WAITING_FOR_CUP = auto()
+    WAITING_USER_SELECTION_ONE = auto()
+    DISPENSING_WATER = auto()
+    DISPENSING_SYRUP = auto()
+    DISPENSING_DONE = auto()
+    DISPENSING_FAULT = auto()
+    DISPLAY_STATS = auto()
+    WAITING_USER_SELECTION_TWO = auto()
+    WAITING_USER_HEAT_SELECTION = auto()
 
 class Faults(Enum):
-    DISPENSING_CUP_REMOVED = 0
-    DISPENSING_CUP_OVERFLOW = 1
-    DISPENSING_WATER_SHORTAGE = 2
-    DISPENSING_SYRUP_SHORTAGE = 3
-    SELECTION_TEMP_TOO_HIGH = 4
-    SELECTION_FLUID_TOO_HIGH = 5
-    SELECTION_INVALID = 6
-    NONE = 7
+    DISPENSING_CUP_REMOVED = auto()
+    DISPENSING_CUP_OVERFLOW = auto()
+    DISPENSING_WATER_SHORTAGE = auto()
+    DISPENSING_SYRUP_SHORTAGE = auto()
+    SELECTION_TEMP_TOO_HIGH = auto()
+    SELECTION_FLUID_TOO_HIGH = auto()
+    SELECTION_INVALID = auto()
+    NONE = auto()
 
 # This class is used to display a progress spinner during pumping
 class PrettyProgressIcon():

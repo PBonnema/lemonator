@@ -5,4 +5,4 @@ init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.app
 [MESSAGES CONTROL]
 # Find available symbolic names in:
 # https://docs.pylint.org/en/1.6.0/features.html#messages-control-options
-disable=missing-final-newline, invalid-name, too-few-public-methods, protected-access, missing-docstring
+disable=missing-final-newline, invalid-name, too-few-public-methods, protected-access, missing-docstring, line-too-long
