@@ -165,7 +165,7 @@ class TestStateTransitions(TestCase):
         for _ in range(150):
             self.ctl.update()
 
-        
+
         self.assertEqual(self.ctl.liquidLevelWater, 1900)
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
@@ -228,7 +228,7 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
-    
+
     def test_controller_select_wrong_amount_syrup(self):
         self.ctl.keypad.push('A')
         self.ctl.update()
@@ -256,8 +256,8 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_SYRUP_SHORTAGE)
-    
-        
+
+
     def test_controller_check_stats_after_dispense(self):
         self.ctl.keypad.push('A')
         self.ctl.update()
@@ -281,7 +281,7 @@ class TestStateTransitions(TestCase):
 
         for _ in range(100):
             self.ctl.update()
-        
+
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
         self.ctl.keypad.push('B')

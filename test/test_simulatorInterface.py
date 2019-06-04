@@ -266,6 +266,121 @@ class TestSensor(TestCase):
         obj.readValue.assert_called_once()
         self.assertEqual(result, '5.1 ml')
 
+    def test_setValue_sets_the_value_on_the_object(self):
+        # Arrange
+        value = 5.1
+        objectId = 'objId'
+        obj = Mock(spec_set=['_value'])
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+
+        # Act
+        target.setValue(value)
+
+        # Assert
+        self.assertEqual(obj._value, 5.1)
+
+    def test_update_updates_the_object_and_reads_its_value(self):
+        # Arrange
+        value = 5.1
+        objectId = 'objId'
+        obj = Mock(spec_set=['update', 'readValue'])
+        obj.readValue.return_value = value
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+
+        # Act
+        target.update()
+
+        # Assert
+        obj.update.assert_called_once()
+        obj.readValue.assert_called_once()
+
+    def test_getAverage_with_one_value_in_buffer_returns_it(self):
+        # Arrange
+        value = 5.1
+        objectId = 'objId'
+        obj = Mock(spec_set=['update', 'readValue'])
+        obj.readValue.return_value = value
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+        numberOfReads = 1
+
+        target.update()
+
+        # Act
+        result = target.getAverage(numberOfReads)
+
+        # Assert
+        self.assertEqual(result, 5.1)
+
+    def test_getAverage_with_more_values_in_buffer_returns_the_mean(self):
+        # Arrange
+        values = [5.1, 4.9, 212]
+        objectId = 'objId'
+        obj = Mock(spec_set=['update', 'readValue'])
+        obj.readValue.side_effect = values
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+        numberOfReads = 3
+
+        target.update()
+        target.update()
+        target.update()
+
+        # Act
+        result = target.getAverage(numberOfReads)
+
+        # Assert
+        self.assertEqual(result, 74)
+
+    def test_getAverage_with_more_values_than_numberOfReads_ignores_the_first_values(self):
+        # Arrange
+        values = [212, 74.32, 5.1, 4.9]
+        objectId = 'objId'
+        obj = Mock(spec_set=['update', 'readValue'])
+        obj.readValue.side_effect = values
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+        numberOfReads = 2
+
+        target.update()
+        target.update()
+        target.update()
+        target.update()
+
+        # Act
+        result = target.getAverage(numberOfReads)
+
+        # Assert
+        self.assertEqual(result, 5)
+
+    def test_getAverage_raises_error_when_buffer_is_empty(self):
+        # Arrange
+        values = [212, 74.32, 5.1, 4.9]
+        objectId = 'objId'
+        obj = Mock(spec_set=['update', 'readValue'])
+        obj.readValue.side_effect = values
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.Sensor(controller, objectId)
+        numberOfReads = 2
+
+        # Act
+        def action():
+            target.getAverage(numberOfReads)
+
+        # Assert
+        with self.assertRaises(ValueError) as cm:
+            action()
+        self.assertEqual(
+            str(cm.exception), 'Sensor buffer is empty')
+
 class TestPresenceSensor(TestCase):
     def test_can_create(self):
         # Arrange
@@ -297,6 +412,21 @@ class TestPresenceSensor(TestCase):
         # Assert
         obj.readValue.assert_called_once()
         self.assertEqual(result, False)
+
+    def test_set_sets_the_value_on_the_object(self):
+        # Arrange
+        value = False
+        objectId = 'objId'
+        obj = Mock(spec_set=['_value'])
+        controller = Mock(spec_set=['_Controller__sensors'])
+        controller._Controller__sensors = {objectId: obj}
+        target = SimulatorInterface.PresenceSensor(controller, objectId)
+
+        # Act
+        target.set(value)
+
+        # Assert
+        self.assertEqual(obj._value, False)
 
 class TestKeypad(TestCase):
     def test_can_create(self):
@@ -528,4 +658,5 @@ class TestSimulatorControlFactory(TestCase):
         # Assert
         with self.assertRaises(TypeError) as cm:
             action()
-        self.assertEqual(str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
+        self.assertEqual(
+            str(cm.exception), 'Class instance AnotherClass does not have a valid base class.')
