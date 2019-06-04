@@ -8,5 +8,8 @@
     ],
     "python.testing.pyTestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": true
+    "python.testing.unittestEnabled": true,
+    "python.autoComplete.extraPaths": [
+        "./simulator"
+    ]
 }
