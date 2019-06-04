@@ -33,7 +33,6 @@ class TestBaseClass(TestCase):
         # Assert
         obj.update.assert_called_once()
 
-
 class TestEffector(TestCase):
     def test_can_create(self):
         # Arrange
@@ -253,17 +252,17 @@ class TestSensor(TestCase):
         # Arrange
         value = '5.1 ml'
         objectId = 'objId'
-        obj = Mock(spec_set=['readValue'])
-        obj.readValue.return_value = value
+        obj = Mock(spec_set=['measure'])
+        obj.measure.return_value = value
         controller = Mock(spec_set=['_Controller__sensors'])
         controller._Controller__sensors = {objectId: obj}
         target = SimulatorInterface.Sensor(controller, objectId)
 
         # Act
-        result = target.readValue()
+        result = target.measure()
 
         # Assert
-        obj.readValue.assert_called_once()
+        obj.measure.assert_called_once()
         self.assertEqual(result, '5.1 ml')
 
     def test_setValue_sets_the_value_on_the_object(self):
