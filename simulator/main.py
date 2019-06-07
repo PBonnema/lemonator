@@ -13,10 +13,20 @@ if __name__ == "__main__":
     Interface = SimulatorInterface.SimulatorInterface
 
     # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
-    controllerObject = CustomController.Controller(simulator._Simulator__plant._sensors, simulator._Simulator__plant._effectors, Interface)
+    controllerObject = CustomController.Controller(
+        simulator._Simulator__plant._sensors,
+        simulator._Simulator__plant._effectors,
+        Interface
+    )
+
+    simulator._Simulator__controller = controllerObject
 
     # Here is the GUI created. This is the GUI, that the simulator will use. Thereby it uses our custom controller.
-    simulator._Simulator__gui = Gui.GUI(simulator._Simulator__plant, controllerObject, simulator._Simulator__monitor)
+    simulator._Simulator__gui = Gui.GUI(
+        simulator._Simulator__plant,
+        controllerObject,
+        simulator._Simulator__monitor
+    )
 
     # The GUI still has to be actived by the simulator.
     simulator.run()

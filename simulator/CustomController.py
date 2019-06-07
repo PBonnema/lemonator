@@ -45,8 +45,6 @@ class PrettyProgressIcon():
         if self.iconStep == len(self.icons):
             self.iconStep = 0
 
-        self.currentStep = 0
-
     def get(self):
         return self.icons[self.iconStep]
 
@@ -365,7 +363,7 @@ class Controller:
             if self.valveA.isOn():
                 self.valveA.switchOn()
 
-    # Checks if the cup is pressent
+    # Checks if the cup is present
     def validateCupAppearance(self) -> bool:
         if not self.cup.readValue():
             self.shutFluid()
@@ -408,7 +406,9 @@ class Controller:
 
     # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:
-        progress = round(((self.level.readValue()-self.beginLevelCup)*Constants.levelVoltageFactor/(self.inputTargetLevelWater+self.inputTargetLevelSyrup))*100.0)
+        progress = round((
+            (self.level.readValue() - self.beginLevelCup) * Constants.levelVoltageFactor
+            / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
         if progress <= 100:
             self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(progress) + "%")
         else:
