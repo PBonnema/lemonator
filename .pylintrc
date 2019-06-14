@@ -1,0 +1,8 @@
+[MASTER]
+# From https://stackoverflow.com/a/39207275
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
+
+[MESSAGES CONTROL]
+# Find available symbolic names in:
+# https://docs.pylint.org/en/1.6.0/features.html#messages-control-options
+disable=missing-final-newline, invalid-name, too-few-public-methods, protected-access, missing-docstring, line-too-long, len-as-condition

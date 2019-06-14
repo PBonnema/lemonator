@@ -1,22 +1,18 @@
 dist: xenial   # required for Python >= 3.7
 language: python
-python:
-  - "3.7"
+python: "3.7"
 
 # before_install:
 
 # command to install dependencies
-install:
-#   - pip install pipreqs
-#   - pipreqs --debug --ignore practicum-atp,.git,.vscode .
-  - pip install -r requirements.txt
+install: pip install -r requirements.txt
 
-# before_script:
+#before_script:
 
 # command to run tests
-script: python -m unittest -v
+script: coverage run --branch --source ./simulator --omit=./simulator/*.pyc,./simulator/Interface.py,./simulator/main.py -m unittest -v
+after_success: coveralls
 
-# after_success:
 # after_failure:
 # after_script:
 # before_deploy:

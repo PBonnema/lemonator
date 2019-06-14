@@ -4,7 +4,7 @@ import Controller
 #Superclass with Constructor and Update function
 
 class Interface():
-    class BaseClass():      
+    class BaseClass():
         def __init__(self, object, controller : Controller):
             pass
 
@@ -14,16 +14,16 @@ class Interface():
         def printDir(self) -> None:
             pass
 
-            
+
     class Effector(BaseClass):
         def __init__(self, controller : Controller, objectID : str):
             pass
-            
+
         #Sets the Effector state to on
         def switchOn(self) -> None:
             raise NotImplementedError("Method switchOn is not implemented")
 
-        
+
         #Sets the Effector state to off
         def switchOff(self) -> None:
             raise NotImplementedError("Method switchOff is not implemented")
@@ -46,7 +46,7 @@ class Interface():
         #Returns data of the currently on the lcd
         def getLines(self) -> str:
             raise NotImplementedError("Method getlines is not implemented")
-        
+
         #Sets a string of data on the LCD
         def pushString(self, s: str) -> None:
             raise NotImplementedError("Method pushString is not implemented")
@@ -68,7 +68,7 @@ class Interface():
         def readValue(self) -> float:
             raise NotImplementedError("Method readValue is not implemented")
 
-        #Returns the senor data with unit of measurment 
+        #Returns the senor data with unit of measurment
         def measure(self) -> str:
             raise NotImplementedError("Method measure is not implemented")
 

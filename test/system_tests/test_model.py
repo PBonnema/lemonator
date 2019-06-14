@@ -1,20 +1,15 @@
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch, call
+from unittest.mock import MagicMock, Mock, call, patch
 
+import Constants
+import CustomController
 import Simulator
 import SimulatorInterface
-import CustomController
-import Gui
-import Constants
-
-from time import sleep
-
-from enum import Enum
 
 # Here is the simulator assigned
 Interface = SimulatorInterface.SimulatorInterface
 
-# For now, we only test out pumps, valves, displays, keypad and the heater. LED's are out of scope for now...
+# For now, we only test the pumps, valves, displays, keypad and the heater. LED's are out of scope for now...
 
 
 class TestStateTransitions(TestCase):
@@ -163,7 +158,7 @@ class TestStateTransitions(TestCase):
         for _ in range(150):
             self.ctl.update()
 
-        
+
         self.assertEqual(self.ctl.liquidLevelWater, 1900)
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
@@ -226,7 +221,7 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
-    
+
     def test_controller_select_wrong_amount_syrup(self):
         self.ctl.keypad.push('A')
         self.ctl.update()
@@ -254,8 +249,8 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_SYRUP_SHORTAGE)
-    
-        
+
+
     def test_controller_check_stats_after_dispense(self):
         self.ctl.keypad.push('A')
         self.ctl.update()
@@ -279,7 +274,7 @@ class TestStateTransitions(TestCase):
 
         for _ in range(100):
             self.ctl.update()
-        
+
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
         self.ctl.keypad.push('B')
@@ -351,6 +346,4 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.state, CustomController.States.WAITING_FOR_CUP)
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Please place a cup")
         self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "to continue...")
-
-
 
