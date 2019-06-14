@@ -131,7 +131,7 @@ class Controller:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             if int(self.liquidLevelWater) <= 0:
                 self.shutFluid()
-                self.flault = Faults.DISPENSING_WATER_SHORTAGE
+                self.fault = Faults.DISPENSING_WATER_SHORTAGE
 
         # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
         if self.fault != Faults.NONE:
@@ -253,8 +253,11 @@ class Controller:
         self.lcd.pushString(" °C (#)")
 
         if self.latestKeypress == '#':
-            if not self.targetHeat.isnumeric() or int(self.targetHeat) <= 0 or int(self.targetHeat) >= 100:
+            if not self.targetHeat.isnumeric() or int(self.targetHeat) <= 0:
                 self.fault = Faults.SELECTION_INVALID
+                return
+            if int(self.targetHeat) >= 100:
+                self.fault = Faults.SELECTION_TEMP_TOO_HIGH
                 return
 
             self.targetHeat = float(self.targetHeat)
@@ -269,9 +272,7 @@ class Controller:
         self.startWaterPump()
         self.updateDisplay()
 
-        self.test = ((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor)
-
-        if (((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater):
+        if ((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater:
             self.shutFluid()
             self.currentLevelCup = self.level.readValue()
             self.liquidLevelWater -= float(self.inputTargetLevelWater)
@@ -317,7 +318,7 @@ class Controller:
         elif fault == Faults.DISPENSING_SYRUP_SHORTAGE:
             self.lcd.pushString("Syrup shortage.")
         elif fault == Faults.SELECTION_TEMP_TOO_HIGH:
-            self.lcd.pushString("Temperature too high.")
+            self.lcd.pushString("Input too high.")
         elif fault == Faults.SELECTION_INVALID:
             self.lcd.pushString("Invalid selection.")
         # Keeps the fluid om the given temp
@@ -340,27 +341,27 @@ class Controller:
             self.heater.switchOff()
 
     #Checks if the pumps and valves are correctly set, if not it will correct them.
-    def startWaterPump(self, onlyOneCanBeOn = True) -> None:
+    def startWaterPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpA.isOn():
             self.pumpA.switchOn()
-        if not self.valveA.isOn():
+        if self.valveA.isOn():
             self.valveA.switchOff()
         if onlyOneCanBeOn:
             if self.pumpB.isOn():
                 self.pumpB.switchOff()
-            if self.valveB.isOn():
+            if not self.valveB.isOn():
                 self.valveB.switchOn()
 
     #Checks if the pump and valves are correctly set, if not it will correct them.
-    def startSyrupPump(self, onlyOneCanBeOn = True) -> None:
+    def startSyrupPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpB.isOn():
             self.pumpB.switchOn()
-        if not self.valveB.isOn():
+        if self.valveB.isOn():
             self.valveB.switchOff()
         if onlyOneCanBeOn:
             if self.pumpA.isOn():
                 self.pumpA.switchOff()
-            if self.valveA.isOn():
+            if not self.valveA.isOn():
                 self.valveA.switchOn()
 
     # Checks if the cup is present

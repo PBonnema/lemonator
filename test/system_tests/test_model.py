@@ -131,7 +131,7 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(
-            self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
+            self.ctl.fault, CustomController.Faults.SELECTION_TEMP_TOO_HIGH)
 
     def test_controller_dispensing_liquid_updates_vessel(self):
         self.ctl.keypad.push('A')
@@ -347,3 +347,252 @@ class TestStateTransitions(TestCase):
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Please place a cup")
         self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "to continue...")
 
+    def test_display_dispensing_cup_removed_fault(self):
+        self.ctl.fault = CustomController.Faults.DISPENSING_CUP_REMOVED
+        self.ctl.update()
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Cup removed.")
+
+    def test_display_dispensing_water_shortage_fault(self):
+        self.ctl.fault = CustomController.Faults.DISPENSING_WATER_SHORTAGE
+        self.ctl.update()
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Water shortage.")
+    
+    def test_display_dispensing_syrup_shortage_fault(self):
+        self.ctl.fault = CustomController.Faults.DISPENSING_SYRUP_SHORTAGE
+        self.ctl.update()
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Syrup shortage.")
+
+    def test_display_selection_temp_too_high_fault(self):
+        self.ctl.fault = CustomController.Faults.SELECTION_TEMP_TOO_HIGH
+        self.ctl.update()
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Input too high.")
+
+    def test_display_selection_invalid_fault(self):
+        self.ctl.fault = CustomController.Faults.SELECTION_INVALID
+        self.ctl.update()
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Invalid selection.")
+
+    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_true(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.startWaterPump(onlyOneCanBeOn=True)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+        self.assertEqual(self.ctl.pumpB.isOn(), False)
+        self.assertEqual(self.ctl.valveB.isOn(), True)
+    
+    def test_start_water_pump_valveA_already_on_only_one_can_be_on_true(self):
+        self.ctl.valveA.switchOn()
+        self.ctl.startWaterPump(True)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+        self.assertEqual(self.ctl.pumpB.isOn(), False)
+        self.assertEqual(self.ctl.valveB.isOn(), True)
+    
+    def test_start_water_pump_only_one_can_be_on_true(self):
+        self.ctl.startWaterPump(onlyOneCanBeOn=True)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+        self.assertEqual(self.ctl.pumpB.isOn(), False)
+        self.assertEqual(self.ctl.valveB.isOn(), True)
+
+    def test_start_syrup_pump_only_one_can_be_on_true(self):
+        self.ctl.startSyrupPump(onlyOneCanBeOn=True)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+        self.assertEqual(self.ctl.pumpA.isOn(), False)
+        self.assertEqual(self.ctl.valveA.isOn(), True)
+
+    def test_start_syrup_pump_pumpA_already_on_only_one_can_be_on_true(self):
+        self.ctl.pumpB.switchOn()
+        self.ctl.startSyrupPump(onlyOneCanBeOn=True)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+        self.assertEqual(self.ctl.pumpA.isOn(), False)
+        self.assertEqual(self.ctl.valveA.isOn(), True)
+    
+    def test_start_syrup_pump_valveA_already_on_only_one_can_be_on_true(self):
+        self.ctl.valveB.switchOn()
+        self.ctl.startSyrupPump(onlyOneCanBeOn=True)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+        self.assertEqual(self.ctl.pumpA.isOn(), False)
+        self.assertEqual(self.ctl.valveA.isOn(), True)
+
+    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_false(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.startWaterPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+        
+    def test_start_water_pump_valveA_already_on_only_one_can_be_on_false(self):
+        self.ctl.valveA.switchOn()
+        self.ctl.startWaterPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+
+    def test_start_water_pump_only_one_can_be_on_false(self):
+        self.ctl.startWaterPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpA.isOn(), True)
+        self.assertEqual(self.ctl.valveA.isOn(), False)
+
+    def test_start_syrup_pump_only_one_can_be_on_false(self):
+        self.ctl.startSyrupPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+
+    def test_start_syrup_pump_pumpA_already_on_only_one_can_be_on_false(self):
+        self.ctl.pumpB.switchOn()
+        self.ctl.startSyrupPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+    
+    def test_start_syrup_pump_valveA_already_on_only_one_can_be_on_false(self):
+        self.ctl.valveB.switchOn()
+        self.ctl.startSyrupPump(onlyOneCanBeOn=False)
+        self.assertEqual(self.ctl.pumpB.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), False)
+    
+    def test_update_leds_pumpA_on_valveA_off(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOff()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenA.isOn(), True)
+        self.assertEqual(self.ctl.ledRedA.isOn(), False)
+
+    def test_update_leds_pumpA_on_valveA_on(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOn()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenA.isOn(), False)
+        self.assertEqual(self.ctl.ledRedA.isOn(), True)
+
+    def test_update_leds_pumpA_off_valveA_off(self):
+        self.ctl.pumpA.switchOff()
+        self.ctl.valveA.switchOff()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenA.isOn(), False)
+        self.assertEqual(self.ctl.ledRedA.isOn(), True)
+
+    def test_update_leds_pumpB_on_valveB_off(self):
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOff()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenB.isOn(), True)
+        self.assertEqual(self.ctl.ledRedB.isOn(), False)
+
+    def test_update_leds_pumpB_on_valveB_on(self):
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOn()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenB.isOn(), False)
+        self.assertEqual(self.ctl.ledRedB.isOn(), True)
+
+    def test_update_leds_pumpB_off_valveB_off(self):
+        self.ctl.pumpB.switchOff()
+        self.ctl.valveB.switchOff()
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledGreenB.isOn(), False)
+        self.assertEqual(self.ctl.ledRedB.isOn(), True)
+
+    def test_update_leds_pumpA_off_valveA_off_pumpB_off_valveB_off_cup_true(self):
+        self.ctl.pumpA.switchOff()
+        self.ctl.valveA.switchOff()
+        self.ctl.pumpB.switchOff()
+        self.ctl.valveB.switchOff()
+        self.ctl.cup.set(True)
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+    
+    def test_update_leds_pumpA_off_valveA_off_pumpB_off_valveB_off_cup_false(self):
+        self.ctl.pumpA.switchOff()
+        self.ctl.valveA.switchOff()
+        self.ctl.pumpB.switchOff()
+        self.ctl.valveB.switchOff()
+        self.ctl.cup.set(False)
+        self.ctl.updateLeds()
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+    
+    def test_update_leds_pumpA_on_valveA_off_pumpB_on_valveB_off_cup_false(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOff()
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOff()
+        self.ctl.cup.set(False)
+        self.ctl.updateLeds()
+
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+
+    def test_update_leds_pumpA_on_valveA_off_pumpB_on_valveB_off_cup_true(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOff()
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOff()
+        self.ctl.cup.set(True)
+        self.ctl.updateLeds()
+
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
+
+    def test_update_leds_pumpA_on_valveA_on_pumpB_on_valveB_on_cup_true(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOn()
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOn()
+        self.ctl.cup.set(True)
+        self.ctl.updateLeds()
+
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+    
+    def test_update_leds_pumpA_on_valveA_on_pumpB_on_valveB_on_cup_false(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.valveA.switchOn()
+        self.ctl.pumpB.switchOn()
+        self.ctl.valveB.switchOn()
+        self.ctl.cup.set(False)
+        self.ctl.updateLeds()
+
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+
+    def test_shutfluids_pumpA_on_pumpB_on(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.pumpB.switchOn()
+        self.ctl.shutFluid()
+        self.assertEqual(self.ctl.pumpA.isOn(), False)
+        self.assertEqual(self.ctl.pumpB.isOn(), False)
+        self.assertEqual(self.ctl.valveA.isOn(), True)
+        self.assertEqual(self.ctl.valveB.isOn(), True)
+
+    def test_validate_cup_appearance_cup_true(self):
+        self.ctl.cup.set(True)
+        self.assertEqual(self.ctl.validateCupAppearance(), True)
+        self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
+
+    def test_validate_cup_appearance_cup_false(self):
+        self.ctl.cup.set(False)
+        self.assertEqual(self.ctl.validateCupAppearance(), False)
+        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
+
+    def test_syrup_false_water_true(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.pumpB.switchOn()
+        self.ctl.liquidLevelSyrup = 0
+        self.ctl.liquidLevelWater = 1000
+        self.ctl.update()
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_SYRUP_SHORTAGE)
+
+    def test_syrup_true_water_false(self):
+        self.ctl.pumpA.switchOn()
+        self.ctl.pumpB.switchOn()
+        self.ctl.liquidLevelSyrup = 1000
+        self.ctl.liquidLevelWater = 0
+        self.ctl.update()
+        self.ctl.update()
+
+        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
