@@ -336,26 +336,21 @@ class TestStateTransitions(TestCase):
 
         self.assertAlmostEqual(self.ctl.targetHeat, 89.0)
 
-    ''' Temp.readvalue needs work only returns 1.8
-    def test_controller_select_heater_temp(self):
-        self.ctl.keypad.push('D')
+    def test_display_idle_state(self):
+        self.ctl.update()
+        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "A = Start, B = Stats")
+        self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "D = Heat")
+
+    def test_display_waiting_for_cup_state(self):
+        self.ctl.keypad.push('A')
         self.ctl.update()
 
-        self.ctl.cup.set(True)
+        self.ctl.cup.set(False)
         self.ctl.update()
-        self.ctl.keypad.push('9')
-        self.ctl.update()
-        self.ctl.keypad.push('9')
-        self.ctl.update()
-        self.ctl.keypad.push('#')
-        self.ctl.update()
+        self.assertEqual(self.ctl.state, CustomController.States.WAITING_FOR_CUP)
+        self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Please place a cup")
+        self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "to continue...")
 
-        for _ in range(250):
-            self.ctl.update()
-            temp1 = self.ctl.heater.isOn()
-            temp2 = self.ctl.temperature.readValue()
-            temp3 = self.ctl.temperature.getAverage(10000)
-        
-        self.assertAlmostEqual(self.ctl.temperature.readValue(), 99.0)
-    '''
+
 

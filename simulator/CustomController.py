@@ -98,7 +98,7 @@ class Controller:
         self.keypad = control.make(Interface.Keypad, 'keypad')
 
         # Array for update function calls so that during the run all objects will be updated
-        self.objects = [self.colour, self.temperature, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
+        self.objects = [self.colour, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
 
         # Set default values
         self.inputTargetLevelWater = ""

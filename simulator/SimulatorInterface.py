@@ -87,7 +87,7 @@ class SimulatorInterface(Interface):
                 if self.buffer.__len__() < numberOfReads:
                     numberOfReads = self.buffer.__len__()
                 return sum(self.buffer[-numberOfReads:]) / numberOfReads
-            raise ValueError("Sensor buffer is empty")    
+            return self.object.readValue()   
 
         def update(self) -> None:
             self.object.update()
