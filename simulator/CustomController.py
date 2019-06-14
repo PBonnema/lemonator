@@ -1,8 +1,6 @@
 from enum import Enum, auto
 
 import Constants
-from Effector import Effector
-from Sensor import ColourSensor, KeyPad, LevelSensor, Sensor, TemperatureSensor
 
 class States(Enum):
     IDLE = auto()
@@ -49,62 +47,61 @@ class PrettyProgressIcon():
         return self.icons[self.iconStep]
 
 class Controller:
-    def __init__(self, sensors, effectors, Interface):
-        # Assign sensors and effectors to the controller
-        self._Controller__sensors = sensors
-        self._Controller__effectors = effectors
+    def __init__(self, pumpA, pumpB, valveA, valveB, heater, ledRedA, ledGreenA, ledRedB,
+        ledGreenB, ledGreenM, ledYellowM, colour, temperature, level, cup, keypad, lcd):
+        # Create effector objects
+        self.pumpA = pumpA
+        self.pumpB = pumpB
+        self.valveA = valveA
+        self.valveB = valveB
+        self.heater = heater
+
+        # Create LED's objects
+        self.ledRedA = ledRedA
+        self.ledGreenA = ledGreenA
+        self.ledRedB = ledRedB
+        self.ledGreenB = ledGreenB
+        self.ledGreenM = ledGreenM
+        self.ledYellowM = ledYellowM
+
+        # Create sensors objects
+        self.colour = colour
+        self.temperature = temperature
+        self.level = level
+        self.cup = cup
+
+        self.keypad = keypad
+        self.lcd = lcd
 
         # Set initial state value
         self.state = States.IDLE
-
-        # Set initial fault to flase/none
+        	
+        # Set initial fault to false/none
         self.fault = Faults.NONE
-
-        # Create control object
-        control = Interface.Factory(self)
-
-        # Create effector objects
-        self.pumpA = control.make(Interface.Effector, 'pumpA')
-        self.pumpB = control.make(Interface.Effector, 'pumpB')
-        self.valveA = control.make(Interface.Effector, 'valveA')
-        self.valveB = control.make(Interface.Effector, 'valveB')
-        self.heater = control.make(Interface.Effector, 'heater')
-
-        # Create LED's objects
-        self.ledRedA = control.make(Interface.LED, 'redA')
-        self.ledGreenA = control.make(Interface.LED, 'greenA')
-        self.ledRedB = control.make(Interface.LED, 'redB')
-        self.ledGreenB = control.make(Interface.LED, 'greenB')
-        self.ledGreenM = control.make(Interface.LED, 'greenM')
-        self.ledYellowM = control.make(Interface.LED, 'yellowM')
-
-        # Create sensors objects
-        self.colour = control.make(Interface.Sensor, 'colour')
-        self.temperature = control.make(Interface.Sensor, 'temp')
-        self.level = control.make(Interface.Sensor, 'level')
-        self.cup = control.make(Interface.PresenceSensor, 'presence')
-
-        # Create UI objects
-        self.lcd = control.make(Interface.LCD, 'lcd')
-        self.lcd.clear() # There has to be data in the buffer, before you can write to the buffer(put & pushString)
-
-        self.keypad = control.make(Interface.Keypad, 'keypad')
 
         # Set default values
         self.inputTargetLevelWater = ""
         self.inputTargetLevelSyrup = ""
-        self.beginLevelCup = self.level.readValue()
-        self.currentLevelCup = self.level.readValue()
+        self.beginLevelCup = 0
+        self.currentLevelCup = 0
         self.liquidLevelWater = Constants.liquidMax
         self.liquidLevelSyrup = Constants.liquidMax
-        self.targetHeat = ""
+        self.inputTargetHeat = ""
 
-        # Clean the keypad just to be sure.
-        self.keypad.popAll()
         self.latestKeypress = None
 
         # Set progress
         self.progress = PrettyProgressIcon()
+
+    def prepare(self) -> None:
+        self.lcd.clear()  # There has to be data in the buffer, before you can write to the buffer(put & pushString)
+
+        # Set default values
+        self.beginLevelCup = self.level.readValue()
+        self.currentLevelCup = self.level.readValue()
+
+        # Clean the keypad just to be sure.
+        self.keypad.popAll()
 
     def update(self) -> None:
         self.latestKeypress = self.keypad.pop()
@@ -113,9 +110,19 @@ class Controller:
         self.lcd.clear()
         self.updateLeds()
 
+        # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
+        if self.fault != Faults.NONE:
+            # Clear inputs
+            self.inputTargetLevelSyrup = ""
+            self.inputTargetLevelWater = ""
+            self.inputTargetHeat = ""
+
+            self.displayFault(self.fault)
+            return
+
         # Check if the heater matches the target temperature.
-        if self.targetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
-            self.heaterOnTemp(float(self.targetHeat) / 20.0)
+        if self.inputTargetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
+            self.heaterOnTemp(float(self.inputTargetHeat) / 20.0)
 
         # If the pumps are flowing, validate that there is still enough liquid left. We don't want to be running dry.
         if self.pumpB.isOn() or self.pumpA.isOn():
@@ -125,11 +132,6 @@ class Controller:
             if float(self.liquidLevelWater) <= 0:
                 self.shutFluid()
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
-
-        # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
-        if self.fault != Faults.NONE:
-            self.displayFault(self.fault)
-            return
 
         self.lcd.pushString(
             "\x0c   Lemonator v1.0\n--------------------\n")
@@ -176,7 +178,7 @@ class Controller:
             self.state = States.DISPLAY_STATS
 
         if self.latestKeypress == 'D':
-            self.targetHeat = ""
+            self.inputTargetHeat = ""
             self.state = States.WAITING_USER_HEAT_SELECTION
 
     def waitingForCupState(self) -> None:
@@ -237,23 +239,23 @@ class Controller:
 
     # This function gets user input for the heater (in celsius)
     def enterHeatSelectionState(self) -> None:
-        self.lcd.pushString(f"Heat: {self.targetHeat}")
+        self.lcd.pushString(f"Heat: {self.inputTargetHeat}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
-            self.targetHeat += self.latestKeypress
+            self.inputTargetHeat += self.latestKeypress
 
         self.lcd.pushString(" °C (#)")
 
         if self.latestKeypress == '#':
-            if not self.targetHeat.isnumeric() or float(self.targetHeat) <= 0:
+            if not self.inputTargetHeat.isnumeric() or float(self.inputTargetHeat) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
-            if float(self.targetHeat) >= 100:
+            if float(self.inputTargetHeat) >= 100:
                 self.fault = Faults.SELECTION_TEMP_TOO_HIGH
                 return
 
-            self.targetHeat = float(self.targetHeat)
+            self.inputTargetHeat = float(self.inputTargetHeat)
             self.state = States.IDLE
 
     # This function will dispence the given amount of water
@@ -265,7 +267,7 @@ class Controller:
         self.startWaterPump()
         self.updateDisplay()
 
-        if ((self.level.readValue()- self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater:
+        if (self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor >= self.inputTargetLevelWater:
             self.shutFluid()
             self.currentLevelCup = self.level.readValue()
             self.liquidLevelWater -= float(self.inputTargetLevelWater)
@@ -274,6 +276,7 @@ class Controller:
         self.progress.next()
 
     # This function will dispence the given amount of syrup
+
     def dispensingSyrupState(self) -> None:
         # Check if the cup is stil present.
         if not self.validateCupAppearance():
@@ -313,6 +316,7 @@ class Controller:
             self.lcd.pushString("Input too high.")
         elif fault == Faults.SELECTION_INVALID:
             self.lcd.pushString("Invalid selection.")
+
         # Keeps the fluid om the given temp
 
         self.lcd.pushString("\nPress # to continue.")
@@ -323,18 +327,18 @@ class Controller:
 
     # Will keep the liquid on a given temperature
     def heaterOnTemp(self, targetTemperature: float) -> None:
+        currentTemperature = self.temperature.readValue()
         if self.cup.readValue():
-            currentTemprature = self.temperature.readValue()
-            if currentTemprature < targetTemperature - 0.5:
+            if currentTemperature < targetTemperature:
                 if not self.heater.isOn():
                     self.heater.switchOn()
-            elif currentTemprature > targetTemperature + 0.5:
+            else:
                 if self.heater.isOn():
                     self.heater.switchOff()
         elif self.heater.isOn():
             self.heater.switchOff()
 
-    #Checks if the pumps and valves are correctly set, if not it will correct them.
+    # Checks if the pumps and valves are correctly set, if not it will correct them.
     def startWaterPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpA.isOn():
             self.pumpA.switchOn()
@@ -346,7 +350,7 @@ class Controller:
             if not self.valveB.isOn():
                 self.valveB.switchOn()
 
-    #Checks if the pump and valves are correctly set, if not it will correct them.
+    # Checks if the pump and valves are correctly set, if not it will correct them.
     def startSyrupPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpB.isOn():
             self.pumpB.switchOn()
@@ -402,7 +406,8 @@ class Controller:
     # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:
         progress = round((
-            (self.level.readValue() - self.beginLevelCup) * Constants.levelVoltageFactor
+            (self.level.readValue() - self.beginLevelCup)
+            * Constants.levelVoltageFactor
             / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
         if progress <= 100:
             self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
