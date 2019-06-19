@@ -86,11 +86,18 @@ class Interface():
 
         # Pushes a string to the keypad
         def pushString(self, s: str) -> None:
-            pass
+            raise NotImplementedError("Method pushString is not implemented")
 
         # Pops the complete keypad buffer
         def popAll(self) -> str:
-            pass
+            raise NotImplementedError("Method popAll is not implemented")
 
         def readBuffer(self) -> str:
+            raise NotImplementedError("Method readBuffer is not implemented")
+
+    class Factory:
+        def __init__(self, controller: Controller):
             pass
+
+        def make(self, instType, *instArgs):
+            raise NotImplementedError("Method make is not implemented")

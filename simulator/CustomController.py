@@ -144,7 +144,7 @@ class Controller:
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
             if int(self.liquidLevelWater) <= 0:
                 self.shutFluid()
-                self.flault = Faults.DISPENSING_WATER_SHORTAGE
+                self.fault = Faults.DISPENSING_WATER_SHORTAGE
 
         self.lcd.pushString(
             "\x0c   Lemonator v1.0\n--------------------\n")
@@ -264,6 +264,9 @@ class Controller:
             if not self.inputTargetHeat.isnumeric() or int(self.inputTargetHeat) <= 0 or int(self.inputTargetHeat) >= 100:
                 self.fault = Faults.SELECTION_INVALID
                 return
+            if int(self.targetHeat) >= 100:
+                self.fault = Faults.SELECTION_TEMP_TOO_HIGH
+                return
 
             self.inputTargetHeat = float(self.inputTargetHeat)
             self.state = States.IDLE
@@ -277,10 +280,7 @@ class Controller:
         self.startWaterPump()
         self.updateDisplay()
 
-        self.test = ((self.level.readValue() - self.currentLevelCup)
-                     * Constants.levelVoltageFactor)
-
-        if (((self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater):
+        if ((self.level.readValue() - self.currentLevelCup) * Constants.levelVoltageFactor) >= self.inputTargetLevelWater:
             self.shutFluid()
             self.currentLevelCup = self.level.readValue()
             self.liquidLevelWater -= float(self.inputTargetLevelWater)
@@ -326,7 +326,7 @@ class Controller:
         elif fault == Faults.DISPENSING_SYRUP_SHORTAGE:
             self.lcd.pushString("Syrup shortage.")
         elif fault == Faults.SELECTION_TEMP_TOO_HIGH:
-            self.lcd.pushString("Temperature too high.")
+            self.lcd.pushString("Input too high.")
         elif fault == Faults.SELECTION_INVALID:
             self.lcd.pushString("Invalid selection.")
 
@@ -353,24 +353,24 @@ class Controller:
     def startWaterPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpA.isOn():
             self.pumpA.switchOn()
-        if not self.valveA.isOn():
+        if self.valveA.isOn():
             self.valveA.switchOff()
         if onlyOneCanBeOn:
             if self.pumpB.isOn():
                 self.pumpB.switchOff()
-            if self.valveB.isOn():
+            if not self.valveB.isOn():
                 self.valveB.switchOn()
 
     # Checks if the pump and valves are correctly set, if not it will correct them.
     def startSyrupPump(self, onlyOneCanBeOn=True) -> None:
         if not self.pumpB.isOn():
             self.pumpB.switchOn()
-        if not self.valveB.isOn():
+        if self.valveB.isOn():
             self.valveB.switchOff()
         if onlyOneCanBeOn:
             if self.pumpA.isOn():
                 self.pumpA.switchOff()
-            if self.valveA.isOn():
+            if not self.valveA.isOn():
                 self.valveA.switchOn()
 
     # Checks if the cup is present
