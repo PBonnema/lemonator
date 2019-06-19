@@ -1,20 +1,32 @@
 import CustomController as Controller
 import time
 from Interface import Interface
+import lemonator
+import sys
 
 # Superclass with Constructor and Update function
+
+lm = None
 
 
 class HardwareInterface(Interface):
     class BaseClass():
         def __init__(self):
-            pass
+            global lm
+
+            # Ugly singleton.
+            if not lm:
+                print("Creating COM port connection...")
+                sys.stdout.flush()
+                lm = lemonator.lemonator(1)
+            #self.lm = lm
+
             #self.object = object
             #self.controller = controller
 
     class Effector(BaseClass):
         def __init__(self):
-            pass
+            super().__init__()
             # super().__init__(
             #    controller._Controller__effectors[objectID], controller)
 
@@ -31,6 +43,9 @@ class HardwareInterface(Interface):
             pass
 
     class LED(Effector):
+        def __init__(self):
+            super().__init__()
+
         # Switches between the on and off state
         def toggle(self) -> None:
             pass
@@ -40,6 +55,13 @@ class HardwareInterface(Interface):
             pass
 
     class LCD(Effector):
+        def __init__(self):
+            super().__init__()
+
+            global lm
+
+            self.lm = lm
+
         # Returns data of the currently on the lcd
         def getLines(self) -> str:
             pass
@@ -54,10 +76,15 @@ class HardwareInterface(Interface):
 
         # Sets a single char on the lcd
         def putc(self, s: str) -> None:
-            pass
+            self.lm.lcd.putc(s[0])
 
     class Sensor(BaseClass):
         def __init__(self):
+            super().__init__()
+
+            global lm
+
+            self.lm = lm
             # super().__init__(
             #    controller._Controller__sensors[objectID], controller)
             self.buffer = []
@@ -83,11 +110,6 @@ class HardwareInterface(Interface):
             # raise ValueError("Sensor buffer is empty")
             pass
 
-        def update(self) -> None:
-            # self.object.update()
-            # self.buffer.append(self.readValue())
-            pass
-
     class PresenceSensor(Sensor):
         # Returns if the cup is presenced
         def readValue(self) -> bool:
@@ -99,45 +121,26 @@ class HardwareInterface(Interface):
             pass
 
     class Keypad(Sensor):
-        # Sets a singel char in the keypad (keypress simulation)
-        def push(self, c: chr) -> None:
-            # self.object.push(c)
-            pass
+        def __init__(self):
+            super().__init__()
+
+            self.keypad = self.lm.keypad
 
         # Returns the first char of the Keypad
         def pop(self) -> str:
             # return 'A'
             # return self.object.pop()
-            pass
-
-        # Pushes a string to the keypad
-        def pushString(self, s: str) -> None:
-            # for c in s:
-            #    self.push(c)
-            pass
+            return self.keypad.getc()
 
         # Pops the complete keypad buffer
         def popAll(self) -> str:
-            # s = ''
-            # charBuffer = ''
-            # while True:
-            #     charBuffer = self.pop()
-            #     if charBuffer == '\x00':
-            #         return s
-            #     s += charBuffer
-            pass
-
-        def readBuffer(self) -> str:
-            # s = ''
-            # charBuffer = ''
-            # self.push('|')
-            # while True:
-            #     charBuffer = self.pop()
-            #     if charBuffer == '|':
-            #         return s
-            #     self.push(charBuffer)
-            #     s += charBuffer
-            pass
+            s = ''
+            charBuffer = ''
+            while True:
+                charBuffer = self.pop()
+                if charBuffer == '\x00':
+                    return s
+                s += charBuffer
 
     class Factory:
         def make(self, instType, *instArgs):
