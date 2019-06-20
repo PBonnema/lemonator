@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import Controller
 
 class Interface:
     class Effector(ABC):

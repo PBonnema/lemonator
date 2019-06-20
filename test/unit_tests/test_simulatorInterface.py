@@ -29,7 +29,7 @@ class TestEffector(TestCase):
         # Assert
         obj.switchOn.assert_called_once()
 
-    def test_switchOn_calls_switchOff_on_object(self):
+    def test_switchOff_calls_switchOff_on_object(self):
         # Arrange
         obj = Mock(spec_set=['switchOff'])
         target = SimulatorInterface.Effector(obj)
