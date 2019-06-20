@@ -399,11 +399,11 @@ class Controller:
             self.ledRedB.switchOn()
 
         if self.pumpA.isOn() and not self.valveA.isOn() and self.pumpB.isOn() and not self.valveB.isOn() and self.cup.readValue():
-            self.ledGreenM.switchOff()
-            self.ledYellowM.switchOn()
-        else:
             self.ledGreenM.switchOn()
             self.ledYellowM.switchOff()
+        else:
+            self.ledGreenM.switchOff()
+            self.ledYellowM.switchOn()
 
     # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:

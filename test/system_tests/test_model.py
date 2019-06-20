@@ -18,7 +18,7 @@ class TestStateTransitions(TestCase):
         self.ctl = CustomController.Controller(
             self.sim._Simulator__plant._sensors, self.sim._Simulator__plant._effectors, Interface)
 
-    def test_controller_init_actuator_and_effector_state(self):
+    def test_controller_init_actuator_and_effector_state(self):#
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
         self.assertFalse(self.ctl.pumpA.isOn())
@@ -30,17 +30,17 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(self.ctl.latestKeypress, None)
 
-    def test_controller_init_state_vars(self):
+    def test_controller_init_state_vars(self):#
         self.assertEqual(self.ctl.liquidLevelWater, Constants.liquidMax)
         self.assertEqual(self.ctl.liquidLevelSyrup, Constants.liquidMax)
         self.assertEqual(self.ctl.inputTargetLevelWater, "")
         self.assertEqual(self.ctl.inputTargetLevelSyrup, "")
         self.assertEqual(self.ctl.targetHeat, "")
 
-    def test_controller_init_fault_state(self):
+    def test_controller_init_fault_state(self):#
         self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
 
-    def test_lcd_is_clear(self):
+    def test_lcd_is_clear(self):#
         lcdLines = self.ctl.lcd.getLines()
         self.assertIsInstance(lcdLines, map)
 
@@ -100,7 +100,7 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
 
-    def test_controller_select_zero_amount(self):
+    def test_controller_select_zero_amount(self):#
         self.ctl.keypad.push('A')
         self.ctl.update()
 
@@ -115,7 +115,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(
             self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
 
-    def test_controller_select_too_high_heater(self):
+    def test_controller_select_too_high_heater(self):#
         self.ctl.keypad.push('D')
         self.ctl.update()
 
@@ -162,7 +162,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.liquidLevelWater, 1900)
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
 
-    def test_controller_dispensing_fault_cup_removed(self):
+    def test_controller_dispensing_fault_cup_removed(self):#
         self.ctl.keypad.push('A')
         self.ctl.update()
 
@@ -200,7 +200,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(list(self.ctl.lcd.getLines())
                          [2].strip(), str(int(Constants.liquidMax)) + " ml <|> " + str(int(Constants.liquidMax)) + " ml")
 
-    def test_controller_select_wrong_amount_water(self):
+    def test_controller_select_wrong_amount_water(self):#
         self.ctl.keypad.push('A')
         self.ctl.update()
 
@@ -222,7 +222,7 @@ class TestStateTransitions(TestCase):
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
 
-    def test_controller_select_wrong_amount_syrup(self):
+    def test_controller_select_wrong_amount_syrup(self):#
         self.ctl.keypad.push('A')
         self.ctl.update()
 
@@ -331,13 +331,13 @@ class TestStateTransitions(TestCase):
 
         self.assertAlmostEqual(self.ctl.targetHeat, 89.0)
 
-    def test_display_idle_state(self):
+    def test_display_idle_state(self):#
         self.ctl.update()
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "A = Start, B = Stats")
         self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "D = Heat")
 
-    def test_display_waiting_for_cup_state(self):
+    def test_display_waiting_for_cup_state(self):#
         self.ctl.keypad.push('A')
         self.ctl.update()
 
@@ -347,32 +347,32 @@ class TestStateTransitions(TestCase):
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Please place a cup")
         self.assertEqual(list(self.ctl.lcd.getLines())[3].strip(), "to continue...")
 
-    def test_display_dispensing_cup_removed_fault(self):
+    def test_display_dispensing_cup_removed_fault(self):#
         self.ctl.fault = CustomController.Faults.DISPENSING_CUP_REMOVED
         self.ctl.update()
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Cup removed.")
 
-    def test_display_dispensing_water_shortage_fault(self):
+    def test_display_dispensing_water_shortage_fault(self):#
         self.ctl.fault = CustomController.Faults.DISPENSING_WATER_SHORTAGE
         self.ctl.update()
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Water shortage.")
     
-    def test_display_dispensing_syrup_shortage_fault(self):
+    def test_display_dispensing_syrup_shortage_fault(self):#
         self.ctl.fault = CustomController.Faults.DISPENSING_SYRUP_SHORTAGE
         self.ctl.update()
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Syrup shortage.")
 
-    def test_display_selection_temp_too_high_fault(self):
+    def test_display_selection_temp_too_high_fault(self):#
         self.ctl.fault = CustomController.Faults.SELECTION_TEMP_TOO_HIGH
         self.ctl.update()
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Input too high.")
 
-    def test_display_selection_invalid_fault(self):
+    def test_display_selection_invalid_fault(self):#
         self.ctl.fault = CustomController.Faults.SELECTION_INVALID
         self.ctl.update()
         self.assertEqual(list(self.ctl.lcd.getLines())[2].strip(), "Invalid selection.")
 
-    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_true(self):
+    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_true(self):#
         self.ctl.pumpA.switchOn()
         self.ctl.startWaterPump(onlyOneCanBeOn=True)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
@@ -380,7 +380,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.pumpB.isOn(), False)
         self.assertEqual(self.ctl.valveB.isOn(), True)
     
-    def test_start_water_pump_valveA_already_on_only_one_can_be_on_true(self):
+    def test_start_water_pump_valveA_already_on_only_one_can_be_on_true(self):#
         self.ctl.valveA.switchOn()
         self.ctl.startWaterPump(True)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
@@ -388,21 +388,21 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.pumpB.isOn(), False)
         self.assertEqual(self.ctl.valveB.isOn(), True)
     
-    def test_start_water_pump_only_one_can_be_on_true(self):
+    def test_start_water_pump_only_one_can_be_on_true(self):#
         self.ctl.startWaterPump(onlyOneCanBeOn=True)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
         self.assertEqual(self.ctl.valveA.isOn(), False)
         self.assertEqual(self.ctl.pumpB.isOn(), False)
         self.assertEqual(self.ctl.valveB.isOn(), True)
 
-    def test_start_syrup_pump_only_one_can_be_on_true(self):
+    def test_start_syrup_pump_only_one_can_be_on_true(self):#
         self.ctl.startSyrupPump(onlyOneCanBeOn=True)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
         self.assertEqual(self.ctl.valveB.isOn(), False)
         self.assertEqual(self.ctl.pumpA.isOn(), False)
         self.assertEqual(self.ctl.valveA.isOn(), True)
 
-    def test_start_syrup_pump_pumpA_already_on_only_one_can_be_on_true(self):
+    def test_start_syrup_pump_pumpB_already_on_only_one_can_be_on_true(self):#
         self.ctl.pumpB.switchOn()
         self.ctl.startSyrupPump(onlyOneCanBeOn=True)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
@@ -410,7 +410,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.pumpA.isOn(), False)
         self.assertEqual(self.ctl.valveA.isOn(), True)
     
-    def test_start_syrup_pump_valveA_already_on_only_one_can_be_on_true(self):
+    def test_start_syrup_pump_valveB_already_on_only_one_can_be_on_true(self):#
         self.ctl.valveB.switchOn()
         self.ctl.startSyrupPump(onlyOneCanBeOn=True)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
@@ -418,35 +418,35 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.pumpA.isOn(), False)
         self.assertEqual(self.ctl.valveA.isOn(), True)
 
-    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_false(self):
+    def test_start_water_pump_pumpA_already_on_only_one_can_be_on_false(self):#
         self.ctl.pumpA.switchOn()
         self.ctl.startWaterPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
         self.assertEqual(self.ctl.valveA.isOn(), False)
         
-    def test_start_water_pump_valveA_already_on_only_one_can_be_on_false(self):
+    def test_start_water_pump_valveA_already_on_only_one_can_be_on_false(self):#
         self.ctl.valveA.switchOn()
         self.ctl.startWaterPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
         self.assertEqual(self.ctl.valveA.isOn(), False)
 
-    def test_start_water_pump_only_one_can_be_on_false(self):
+    def test_start_water_pump_only_one_can_be_on_false(self):#
         self.ctl.startWaterPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpA.isOn(), True)
         self.assertEqual(self.ctl.valveA.isOn(), False)
 
-    def test_start_syrup_pump_only_one_can_be_on_false(self):
+    def test_start_syrup_pump_only_one_can_be_on_false(self):#
         self.ctl.startSyrupPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
         self.assertEqual(self.ctl.valveB.isOn(), False)
 
-    def test_start_syrup_pump_pumpA_already_on_only_one_can_be_on_false(self):
+    def test_start_syrup_pump_pumpB_already_on_only_one_can_be_on_false(self):#
         self.ctl.pumpB.switchOn()
         self.ctl.startSyrupPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
         self.assertEqual(self.ctl.valveB.isOn(), False)
     
-    def test_start_syrup_pump_valveA_already_on_only_one_can_be_on_false(self):
+    def test_start_syrup_pump_valveB_already_on_only_one_can_be_on_false(self):#
         self.ctl.valveB.switchOn()
         self.ctl.startSyrupPump(onlyOneCanBeOn=False)
         self.assertEqual(self.ctl.pumpB.isOn(), True)
@@ -501,8 +501,8 @@ class TestStateTransitions(TestCase):
         self.ctl.valveB.switchOff()
         self.ctl.cup.set(True)
         self.ctl.updateLeds()
-        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
     
     def test_update_leds_pumpA_off_valveA_off_pumpB_off_valveB_off_cup_false(self):
         self.ctl.pumpA.switchOff()
@@ -511,8 +511,8 @@ class TestStateTransitions(TestCase):
         self.ctl.valveB.switchOff()
         self.ctl.cup.set(False)
         self.ctl.updateLeds()
-        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
     
     def test_update_leds_pumpA_on_valveA_off_pumpB_on_valveB_off_cup_false(self):
         self.ctl.pumpA.switchOn()
@@ -522,8 +522,8 @@ class TestStateTransitions(TestCase):
         self.ctl.cup.set(False)
         self.ctl.updateLeds()
 
-        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
 
     def test_update_leds_pumpA_on_valveA_off_pumpB_on_valveB_off_cup_true(self):
         self.ctl.pumpA.switchOn()
@@ -533,8 +533,8 @@ class TestStateTransitions(TestCase):
         self.ctl.cup.set(True)
         self.ctl.updateLeds()
 
-        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
 
     def test_update_leds_pumpA_on_valveA_on_pumpB_on_valveB_on_cup_true(self):
         self.ctl.pumpA.switchOn()
@@ -544,8 +544,8 @@ class TestStateTransitions(TestCase):
         self.ctl.cup.set(True)
         self.ctl.updateLeds()
 
-        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
     
     def test_update_leds_pumpA_on_valveA_on_pumpB_on_valveB_on_cup_false(self):
         self.ctl.pumpA.switchOn()
@@ -555,8 +555,8 @@ class TestStateTransitions(TestCase):
         self.ctl.cup.set(False)
         self.ctl.updateLeds()
 
-        self.assertEqual(self.ctl.ledYellowM.isOn(), False)
-        self.assertEqual(self.ctl.ledGreenM.isOn(), True)
+        self.assertEqual(self.ctl.ledYellowM.isOn(), True)
+        self.assertEqual(self.ctl.ledGreenM.isOn(), False)
 
     def test_shutfluids_pumpA_on_pumpB_on(self):
         self.ctl.pumpA.switchOn()
@@ -596,3 +596,4 @@ class TestStateTransitions(TestCase):
         self.ctl.update()
 
         self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
+ 

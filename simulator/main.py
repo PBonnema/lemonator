@@ -7,13 +7,13 @@ if __name__ == "__main__":
 
     # A bit of explaining here is needed, because I want to overwrite the GUI with our custom controller.
     # You don't want the simulator to make the GUI for you. So the GUI bool is set to False.
-    simulator = Simulator.Simulator(False)
+    Simulator = Simulator.Simulator(False)
 
     # Here is the simulator assigned
     Interface = SimulatorInterface.SimulatorInterface
 
     # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
-    controllerObject = CustomController.Controller(
+    ControllerObject = CustomController.Controller(
         simulator._Simulator__plant._sensors,
         simulator._Simulator__plant._effectors,
         Interface
