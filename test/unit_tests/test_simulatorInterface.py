@@ -21,18 +21,6 @@ class TestBaseClass(TestCase):
         self.assertIs(obj, instance.object)
         self.assertIs(controller, instance.controller)
 
-    def test_update_calls_update_on_object(self):
-        # Arrange
-        obj = Mock(spec_set=['update'])
-        controller = Mock(spec_set=[''])
-        target = SimulatorInterface.BaseClass(obj, controller)
-
-        # Act
-        target.update()
-
-        # Assert
-        obj.update.assert_called_once()
-
 class TestEffector(TestCase):
     def test_can_create(self):
         # Arrange
@@ -123,23 +111,6 @@ class TestLED(TestCase):
         # Assert
         obj.toggle.assert_called_once()
 
-    def test_getColour_returns_the_objects_colour(self):
-        # Arrange
-        colour = True
-        objectId = 'objId'
-        obj = Mock(spec_set=['getColour'])
-        obj.getColour.return_value = colour
-        controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = {objectId: obj}
-        target = SimulatorInterface.LED(controller, objectId)
-
-        # Act
-        result = target.getColour()
-
-        # Assert
-        obj.getColour.assert_called_once()
-        self.assertEqual(True, result)
-
 class TestLCD(TestCase):
     def test_can_create(self):
         # Arrange
@@ -154,23 +125,6 @@ class TestLCD(TestCase):
         # Assert
         self.assertIs(obj, instance.object)
         self.assertIs(controller, instance.controller)
-
-    def test_getLines_returns_the_lines_of_the_object(self):
-        # Arrange
-        lines = 'manylines\nevenmorelines\n'
-        objectId = 'objId'
-        obj = Mock(spec_set=['getLines'])
-        obj.getLines.return_value = lines
-        controller = Mock(spec_set=['_Controller__effectors'])
-        controller._Controller__effectors = {objectId: obj}
-        target = SimulatorInterface.LCD(controller, objectId)
-
-        # Act
-        result = target.getLines()
-
-        # Assert
-        obj.getLines.assert_called_once()
-        self.assertEqual(result, 'manylines\nevenmorelines\n')
 
     def test_pushString_pushes_the_string_to_the_object(self):
         # Arrange
@@ -248,138 +202,6 @@ class TestSensor(TestCase):
         obj.readValue.assert_called_once()
         self.assertEqual(result, 5.1)
 
-    def test_measure_reads_and_returns_the_current_value_with_unit(self):
-        # Arrange
-        value = '5.1 ml'
-        objectId = 'objId'
-        obj = Mock(spec_set=['measure'])
-        obj.measure.return_value = value
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-
-        # Act
-        result = target.measure()
-
-        # Assert
-        obj.measure.assert_called_once()
-        self.assertEqual(result, '5.1 ml')
-
-    def test_setValue_sets_the_value_on_the_object(self):
-        # Arrange
-        value = 5.1
-        objectId = 'objId'
-        obj = Mock(spec_set=['_value'])
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-
-        # Act
-        target.setValue(value)
-
-        # Assert
-        self.assertEqual(obj._value, 5.1)
-
-    def test_update_updates_the_object_and_reads_its_value(self):
-        # Arrange
-        value = 5.1
-        objectId = 'objId'
-        obj = Mock(spec_set=['update', 'readValue'])
-        obj.readValue.return_value = value
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-
-        # Act
-        target.update()
-
-        # Assert
-        obj.update.assert_called_once()
-        obj.readValue.assert_called_once()
-
-    def test_getAverage_with_one_value_in_buffer_returns_it(self):
-        # Arrange
-        value = 5.1
-        objectId = 'objId'
-        obj = Mock(spec_set=['update', 'readValue'])
-        obj.readValue.return_value = value
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-        numberOfReads = 1
-
-        target.update()
-
-        # Act
-        result = target.getAverage(numberOfReads)
-
-        # Assert
-        self.assertEqual(result, 5.1)
-
-    def test_getAverage_with_more_values_in_buffer_returns_the_mean(self):
-        # Arrange
-        values = [5.1, 4.9, 212]
-        objectId = 'objId'
-        obj = Mock(spec_set=['update', 'readValue'])
-        obj.readValue.side_effect = values
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-        numberOfReads = 3
-
-        target.update()
-        target.update()
-        target.update()
-
-        # Act
-        result = target.getAverage(numberOfReads)
-
-        # Assert
-        self.assertEqual(result, 74)
-
-    def test_getAverage_with_more_values_than_numberOfReads_ignores_the_first_values(self):
-        # Arrange
-        values = [212, 74.32, 5.1, 4.9]
-        objectId = 'objId'
-        obj = Mock(spec_set=['update', 'readValue'])
-        obj.readValue.side_effect = values
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-        numberOfReads = 2
-
-        target.update()
-        target.update()
-        target.update()
-        target.update()
-
-        # Act
-        result = target.getAverage(numberOfReads)
-
-        # Assert
-        self.assertEqual(result, 5)
-
-    def test_getAverage_raises_error_when_buffer_is_empty(self):
-        # Arrange
-        values = [212, 74.32, 5.1, 4.9]
-        objectId = 'objId'
-        obj = Mock(spec_set=['update', 'readValue'])
-        obj.readValue.side_effect = values
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Sensor(controller, objectId)
-        numberOfReads = 2
-
-        # Act
-        def action():
-            target.getAverage(numberOfReads)
-
-        # Assert
-        with self.assertRaises(ValueError) as cm:
-            action()
-        self.assertEqual(
-            str(cm.exception), 'Sensor buffer is empty')
-
 class TestPresenceSensor(TestCase):
     def test_can_create(self):
         # Arrange
@@ -412,21 +234,6 @@ class TestPresenceSensor(TestCase):
         obj.readValue.assert_called_once()
         self.assertEqual(result, False)
 
-    def test_set_sets_the_value_on_the_object(self):
-        # Arrange
-        value = False
-        objectId = 'objId'
-        obj = Mock(spec_set=['_value'])
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.PresenceSensor(controller, objectId)
-
-        # Act
-        target.set(value)
-
-        # Assert
-        self.assertEqual(obj._value, False)
-
 class TestKeypad(TestCase):
     def test_can_create(self):
         # Arrange
@@ -442,21 +249,6 @@ class TestKeypad(TestCase):
         self.assertIs(obj, instance.object)
         self.assertIs(controller, instance.controller)
 
-    def test_push_pushes_the_character(self):
-        # Arrange
-        objectId = 'objId'
-        obj = Mock(spec_set=['push'])
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Keypad(controller, objectId)
-        char = 'a'
-
-        # Act
-        target.push(char)
-
-        # Assert
-        obj.push.assert_called_once_with('a')
-
     def test_pop_pops_the_next_character(self):
         # Arrange
         objectId = 'objId'
@@ -470,38 +262,6 @@ class TestKeypad(TestCase):
 
         # Assert
         obj.pop.assert_called_once()
-
-    def test_pushString_does_nothing_with_empty_string(self):
-        # Arrange
-        objectId = 'objId'
-        obj = Mock(spec_set=['push'])
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Keypad(controller, objectId)
-        string = ''
-
-        # Act
-        target.pushString(string)
-
-        # Assert
-        obj.push.assert_not_called()
-
-    def test_pushString_pushes_each_char_of_the_string(self):
-        # Arrange
-        objectId = 'objId'
-        obj = Mock(spec_set=['push'])
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Keypad(controller, objectId)
-        string = 'ab12'
-
-        # Act
-        target.pushString(string)
-
-        # Assert
-        self.assertListEqual(obj.push.mock_calls, [
-            call('a'), call('b'), call('1'), call('2')
-        ])
 
     def test_popAll_returns_empty_string_if_only_char_is_null_char(self):
         # Arrange
@@ -562,45 +322,6 @@ class TestKeypad(TestCase):
 
         # Assert
         self.assertEqual(result, '')
-
-    def test_readBuffer_pushes_pipe_char_then_returns_empty_string_if_popped_char_is_a_pipe(self):
-        # Arrange
-        objectId = 'objId'
-        obj = Mock(spec_set=['push', 'pop'])
-        obj.pop.return_value = '|'
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Keypad(controller, objectId)
-
-        # Act
-        result = target.readBuffer()
-
-        # Assert
-        obj.push.assert_called_once_with('|')
-        obj.pop.assert_called_once()
-        self.assertEqual(result, '')
-
-    def test_readBuffer_pushes_pipe_char_then_pushes_what_it_pops(self):
-        # Arrange
-        objectId = 'objId'
-        obj = Mock(spec_set=['push', 'pop'])
-        obj.pop.side_effect = 'abcd|'
-        controller = Mock(spec_set=['_Controller__sensors'])
-        controller._Controller__sensors = {objectId: obj}
-        target = SimulatorInterface.Keypad(controller, objectId)
-
-        # Act
-        result = target.readBuffer()
-
-        # Assert
-        self.assertListEqual(obj.pop.mock_calls, [
-            call(), call(), call(), call(), call()
-        ])
-        self.assertListEqual(obj.push.mock_calls, [
-            call('|'), call('a'), call('b'), call('c'), call('d')
-        ])
-        self.assertEqual(result, 'abcd')
-
 
 class TestSimulatorControlFactory(TestCase):
     class BaseClassMagicMock(MagicMock):

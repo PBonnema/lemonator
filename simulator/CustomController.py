@@ -90,9 +90,6 @@ class Controller:
 
         self.keypad = control.make(Interface.Keypad, 'keypad')
 
-        # Array for update function calls so that during the run all objects will be updated
-        self.objects = [self.colour, self.level, self.lcd, self.keypad, self.pumpA, self.pumpB, self.valveA, self.valveB, self.ledRedA, self.ledRedB, self.ledGreenA, self.ledGreenB, self.ledGreenM, self.ledYellowM]
-
         # Set default values
         self.inputTargetLevelWater = ""
         self.inputTargetLevelSyrup = ""
@@ -110,10 +107,6 @@ class Controller:
         self.progress = PrettyProgressIcon()
 
     def update(self) -> None:
-        # Update all objects to represent the current simulator state.
-        for i in self.objects:
-            i.update()
-
         self.latestKeypress = self.keypad.pop()
 
         # Clear visuals.
@@ -126,10 +119,10 @@ class Controller:
 
         # If the pumps are flowing, validate that there is still enough liquid left. We don't want to be running dry.
         if self.pumpB.isOn() or self.pumpA.isOn():
-            if int(self.liquidLevelSyrup) <= 0:
+            if float(self.liquidLevelSyrup) <= 0:
                 self.shutFluid()
                 self.fault = Faults.DISPENSING_SYRUP_SHORTAGE
-            if int(self.liquidLevelWater) <= 0:
+            if float(self.liquidLevelWater) <= 0:
                 self.shutFluid()
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
 
@@ -195,7 +188,7 @@ class Controller:
 
     # This function gets userinput for the amount of water.
     def enterSelectionOneState(self) -> None:
-        self.lcd.pushString("Water: " + str(self.inputTargetLevelWater))
+        self.lcd.pushString(f"Water: {self.inputTargetLevelWater}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -204,10 +197,10 @@ class Controller:
         self.lcd.pushString(" ml (#)\n")
 
         self.lcd.pushString(
-            "Syrup: " + str(self.inputTargetLevelSyrup) + " ml")
+            f"Syrup: {self.inputTargetLevelSyrup} ml")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelWater.isnumeric() or int(self.inputTargetLevelWater) <= 0:
+            if not self.inputTargetLevelWater.isnumeric() or float(self.inputTargetLevelWater) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
@@ -221,8 +214,8 @@ class Controller:
     # This function gets userinput for the amount of syrup.
     def enterSelectionTwoState(self) -> None:
         self.lcd.pushString(
-            "Water: " + str(int(self.inputTargetLevelWater)) + " ml\n")
-        self.lcd.pushString("Syrup: " + str(self.inputTargetLevelSyrup))
+            f"Water: {self.inputTargetLevelWater} ml\n")
+        self.lcd.pushString(f"Syrup: {self.inputTargetLevelSyrup}")
 
         if self.latestKeypress.isdigit():
             self.lcd.putc(self.latestKeypress)
@@ -231,7 +224,7 @@ class Controller:
         self.lcd.pushString(" ml (#)")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelSyrup.isnumeric() or int(self.inputTargetLevelSyrup) <= 0:
+            if not self.inputTargetLevelSyrup.isnumeric() or float(self.inputTargetLevelSyrup) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
             self.inputTargetLevelSyrup = float(self.inputTargetLevelSyrup)
@@ -242,7 +235,7 @@ class Controller:
                 self.state = States.DISPENSING_WATER
                 self.beginLevelCup = self.level.readValue()
 
-    # This function gets userinput for the heater (in celsius)
+    # This function gets user input for the heater (in celsius)
     def enterHeatSelectionState(self) -> None:
         self.lcd.pushString(f"Heat: {self.targetHeat}")
 
@@ -253,10 +246,10 @@ class Controller:
         self.lcd.pushString(" °C (#)")
 
         if self.latestKeypress == '#':
-            if not self.targetHeat.isnumeric() or int(self.targetHeat) <= 0:
+            if not self.targetHeat.isnumeric() or float(self.targetHeat) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
-            if int(self.targetHeat) >= 100:
+            if float(self.targetHeat) >= 100:
                 self.fault = Faults.SELECTION_TEMP_TOO_HIGH
                 return
 
@@ -279,7 +272,6 @@ class Controller:
             self.state = States.DISPENSING_SYRUP
 
         self.progress.next()
-
 
     # This function will dispence the given amount of syrup
     def dispensingSyrupState(self) -> None:
@@ -329,15 +321,17 @@ class Controller:
             self.state = States.IDLE
             self.fault = Faults.NONE
 
-    # Will keep the liquid on a given temprature
+    # Will keep the liquid on a given temperature
     def heaterOnTemp(self, targetTemperature: float) -> None:
-        currentTemprature = self.temperature.getAverage(3)
         if self.cup.readValue():
-            if currentTemprature < targetTemperature:
-                self.heater.switchOn()
-            else:
-                self.heater.switchOff()
-        else:
+            currentTemprature = self.temperature.readValue()
+            if currentTemprature < targetTemperature - 0.5:
+                if not self.heater.isOn():
+                    self.heater.switchOn()
+            elif currentTemprature > targetTemperature + 0.5:
+                if self.heater.isOn():
+                    self.heater.switchOff()
+        elif self.heater.isOn():
             self.heater.switchOff()
 
     #Checks if the pumps and valves are correctly set, if not it will correct them.
@@ -411,6 +405,6 @@ class Controller:
             (self.level.readValue() - self.beginLevelCup) * Constants.levelVoltageFactor
             / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
         if progress <= 100:
-            self.lcd.pushString(f"     (" + self.progress.get() + ") " + str(progress) + "%")
+            self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
         else:
             self.lcd.pushString(f"      Done!      ")
