@@ -17,6 +17,8 @@ TARGET            := native
 # add the RS-232 library
 # SEARCH            += $(RELATIVE)/../RS-232
 SEARCH 				+= $(RELATIVE)/library/RS-232
+SEARCH 				+= $(RELATIVE)/library
+
 
 # defer to the Makefile.shared
 include           $(RELATIVE)/Makefile.link

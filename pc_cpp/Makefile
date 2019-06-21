@@ -9,10 +9,10 @@
 #############################################################################
 
 # source files in this project (main.cpp is automatically assumed)
-SOURCES := rs232.c
+SOURCES := rs232.c CustomController.cpp
 
 # header files in this project
-HEADERS :=
+HEADERS := CustomController.hpp lemonator_proxy.hpp lemonator_interface.hpp
 
 # other places to look for files for this project
 SEARCH  := 
