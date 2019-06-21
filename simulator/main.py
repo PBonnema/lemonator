@@ -64,11 +64,11 @@ if __name__ == "__main__":
         Interface = HardwareInterface.HardwareInterface
         # ======================== LEMONATOR PROXY DEFINTIONS (HARDWARE INTERFACE) ========================
         # Create effector objects
-        pumpA = Interface.Effector()
-        pumpB = Interface.Effector()
-        valveA = Interface.Effector()
-        valveB = Interface.Effector()
-        heater = Interface.Effector()
+        pumpA = Interface.Pump('A')
+        pumpB = Interface.Pump('B')
+        valveA = Interface.Valve('A')
+        valveB = Interface.Valve('B')
+        heater = Interface.Heater()
 
         # Create LED's objects
         ledRedA = Interface.LED()
@@ -79,9 +79,9 @@ if __name__ == "__main__":
         ledYellowM = Interface.LEDYellow()
 
         # Create sensors objects
-        colour = Interface.Sensor()
-        temperature = Interface.Sensor()
-        level = Interface.Sensor()
+        colour = Interface.ColourSensor()
+        temperature = Interface.TemperatureSensor()
+        level = Interface.LevelSensor()
         cup = Interface.PresenceSensor()
 
         # Create UI objects

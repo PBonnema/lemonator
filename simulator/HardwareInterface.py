@@ -1,7 +1,53 @@
 from Interface import Interface
+import lemonator
 
 class HardwareInterface(Interface):
     class Effector(Interface.Effector):
+        # Sets the Effector state to on
+        def switchOn(self) -> None:
+            pass
+
+        # Sets the Effector state to off
+        def switchOff(self) -> None:
+            pass
+
+        # Returns the Effector state
+        def isOn(self) -> bool:
+            pass
+
+    class Heater(Effector):
+        # Sets the Effector state to on
+        def switchOn(self) -> None:
+            pass
+
+        # Sets the Effector state to off
+        def switchOff(self) -> None:
+            pass
+
+        # Returns the Effector state
+        def isOn(self) -> bool:
+            pass
+
+    class Valve(Effector):
+        def __init__(self, type : str):
+            self.type = type
+
+        # Sets the Effector state to on
+        def switchOn(self) -> None:
+            pass
+
+        # Sets the Effector state to off
+        def switchOff(self) -> None:
+            pass
+
+        # Returns the Effector state
+        def isOn(self) -> bool:
+            pass
+
+    class Pump(Effector):
+        def __init__(self, type : str):
+            self.type = type
+
         # Sets the Effector state to on
         def switchOn(self) -> None:
             pass
@@ -43,6 +89,18 @@ class HardwareInterface(Interface):
         def readValue(self) -> float:
             pass
             # return self.object.readValue()
+
+    class LevelSensor(Interface.Sensor):
+        def readValue(self):
+            pass
+
+    class TemperatureSensor(Interface.Sensor):
+        def readValue(self):
+            pass
+
+    class ColourSensor(Interface.Sensor):
+        def readValue(self):
+            pass
 
     class PresenceSensor(Sensor):
         # Returns if the cup is presenced
