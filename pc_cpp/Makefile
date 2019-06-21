@@ -12,7 +12,7 @@
 SOURCES := rs232.c CustomController.cpp
 
 # header files in this project
-HEADERS := CustomController.hpp lemonator_proxy.hpp lemonator_interface.hpp
+HEADERS := CustomController.hpp lemonator_proxy.hpp lemonator_interface.hpp proxy_interfaces.hpp
 
 # other places to look for files for this project
 SEARCH  := 

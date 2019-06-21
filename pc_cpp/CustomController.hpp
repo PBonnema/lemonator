@@ -4,35 +4,6 @@
 #include "lemonator_proxy.hpp"
 
 
-class Effector{
-public:
-    bool isOn();  
-    void set(bool state);  
-};
-
-class Sensor{
-public:
-    int readValue();    
-};
-
-class LCD : public Effector{
-public:
-    void clear();
-    void pushString(std::string string);
-    void putc(char);
-};
-class Keypad: public Sensor{
-public:
-    char pop();
-};
-
-class LED{
-public:
-    void set(bool state);
-};
-class LEDGreen : public LED{};
-class LEDYellow : public LED{};
-
 struct Constants
 {
     const float levelVoltageFactor = 625.0;
@@ -72,10 +43,10 @@ private:
 
     //int COM = 2;
 
-    lemonator_proxy boi();
+    
     States state;
     Faults fault;
-    Effector waterPump;
+    /* Effector waterPump;
     Effector sirupPump;
     Effector waterValve;
     Effector sirupValve;
@@ -91,9 +62,11 @@ private:
     
     LCD lcd;
     
-    Keypad keypad;
+    Keypad keypad;*/
 
     Constants constants;
+
+    lemonator_proxy proxy;
 
     float beginLevelCup;
     float currentLevelCup;
@@ -110,9 +83,9 @@ private:
 
     
 public:
-    CustomController(Effector waterPumpObject, Effector sirupPumpObject, Effector waterValveObject, Effector sirupValveObject, Effector heaterObject, 
-    Sensor tempratureObject, Sensor levelObject, Sensor cupObject, LEDGreen LedGreenObject, LEDYellow LedYellowObject, LCD lcdObject, Keypad keypadObject);
-    
+    //CustomController(Effector waterPumpObject, Effector sirupPumpObject, Effector waterValveObject, Effector sirupValveObject, Effector heaterObject, 
+    //Sensor tempratureObject, Sensor levelObject, Sensor cupObject, LEDGreen LedGreenObject, LEDYellow LedYellowObject, LCD lcdObject, Keypad keypadObject);
+    CustomController();
     ~CustomController(void);
     
     void update(void);
