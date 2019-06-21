@@ -107,7 +107,7 @@ class Controller:
         self.progress = PrettyProgressIcon()
 
     def prepare(self) -> None:
-        self.lcd.clear()  # There has to be data in the buffer, before you can write to the buffer(put & pushString)
+        # self.lcd.clear()  # There has to be data in the buffer, before you can write to the buffer(put & pushString)
 
         # Set default values
         self.beginLevelCup = self.level.readValue()
@@ -120,7 +120,7 @@ class Controller:
         self.latestKeypress = self.keypad.pop()
 
         # Clear visuals.
-        self.lcd.clear()
+        # self.lcd.clear()
         self.updateLeds()
 
         # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
@@ -145,9 +145,10 @@ class Controller:
             if int(self.liquidLevelWater) <= 0:
                 self.shutFluid()
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
+        self.lcd.pushString("\x0c")
 
-        self.lcd.pushString(
-            "\x0c   Lemonator v1.0\n--------------------\n")
+        # self.lcd.pushString(
+        #    "\x0c   Lemonator v1.0\n--------------------\n")
 
         # Part of the state machine; state handling.
         if self.state == States.IDLE:
@@ -264,7 +265,7 @@ class Controller:
             if not self.inputTargetHeat.isnumeric() or int(self.inputTargetHeat) <= 0 or int(self.inputTargetHeat) >= 100:
                 self.fault = Faults.SELECTION_INVALID
                 return
-            if int(self.targetHeat) >= 100:
+            if int(self.inputTargetHeat) >= 100:
                 self.fault = Faults.SELECTION_TEMP_TOO_HIGH
                 return
 
