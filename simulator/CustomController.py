@@ -87,8 +87,8 @@ class Controller:
         # Set default values
         self.inputTargetLevelWater = ""
         self.inputTargetLevelSyrup = ""
-        self.beginLevelCup = 0
-        self.currentLevelCup = 0
+        self.beginLevelCup = 0.0
+        self.currentLevelCup = 0.0
         self.liquidLevelWater = Constants.liquidMax
         self.liquidLevelSyrup = Constants.liquidMax
         self.inputTargetHeat = ""
@@ -127,7 +127,7 @@ class Controller:
 
         # Check if the heater matches the target temperature.
         if self.inputTargetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
-            self.heaterOnTemp(float(self.inputTargetHeat) / 20.0)
+            self.heaterOnTemp(float(self.inputTargetHeat))
 
         # If the pumps are flowing, validate that there is still enough liquid left. We don't want to be running dry.
         if self.pumpB.isOn() or self.pumpA.isOn():
@@ -139,8 +139,8 @@ class Controller:
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
         self.lcd.pushString("\x0c")
 
-        self.lcd.pushString(
-           "\x0c   Lemonator v1.0\n--------------------\n")
+        #self.lcd.pushString(
+        #   "\x0c   Lemonator v1.0\n--------------------\n")
 
         # Part of the state machine; state handling.
         if self.state == States.IDLE:
@@ -208,7 +208,7 @@ class Controller:
             f"Syrup: {self.inputTargetLevelSyrup} ml")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelWater.isnumeric() or float(self.inputTargetLevelWater) <= 0:
+            if not self.inputTargetLevelWater.isnumeric() or float(self.inputTargetLevelWater) < 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
@@ -232,7 +232,7 @@ class Controller:
         self.lcd.pushString(" ml (#)")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelSyrup.isnumeric() or float(self.inputTargetLevelSyrup) <= 0:
+            if not self.inputTargetLevelSyrup.isnumeric() or float(self.inputTargetLevelSyrup) < 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
             self.inputTargetLevelSyrup = float(self.inputTargetLevelSyrup)
@@ -411,11 +411,12 @@ class Controller:
 
     # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:
-        progress = round((
-            (self.level.readValue() - self.beginLevelCup)
-            * Constants.levelVoltageFactor
-            / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
-        if progress <= 100:
-            self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
-        else:
-            self.lcd.pushString(f"      Done!      ")
+        if (self.inputTargetLevelWater + self.inputTargetLevelSyrup) > 0:
+            progress = round((
+                (self.level.readValue() - self.beginLevelCup)
+                * Constants.levelVoltageFactor
+                / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
+            if progress <= 100:
+                self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
+            else:
+                self.lcd.pushString(f"      Done!      ")
