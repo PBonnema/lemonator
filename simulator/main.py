@@ -1,19 +1,20 @@
-import Simulator
-import SimulatorInterface
-import HardwareInterface
+import argparse
+import sys
+import time
+
 import CustomController
 import Gui
-import time
-import sys
-import argparse
+import HardwareInterface
+import Simulator
+import SimulatorInterface
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Controls the Lemonator.')
     parser.add_argument(
-        '--sim', help='Run upon the simulator.', action='store_true')
+        '--sim', help='Run on the simulator.', action='store_true')
     parser.add_argument(
-        '--hw', help='Run upon the hardware.', action='store_true')
+        '--hw', help='Run on the hardware.', action='store_true')
 
     args = parser.parse_args()
 
@@ -21,82 +22,77 @@ if __name__ == "__main__":
         print("Please use --sim or --hw argument.")
         exit(1)
 
-    # A bit of explaining here is needed, because I want to overwrite the GUI with our custom controller.
-    # You don't want the simulator to make the GUI for you. So the GUI bool is set to False.
-    simulator = Simulator.Simulator(False)
-
     if args.sim:
-        # Here is the simulator assigned. Choose one of the two below.
+        # A bit of explaining here is needed, because I want to overwrite the GUI with our custom controller.
+        # You don't want the simulator to make the GUI for you. So the GUI bool is set to False.
+        simulator = Simulator.Simulator(False)
+
         Interface = SimulatorInterface.SimulatorInterface
-        # Interface = HardwareInterface.HardwareInterface
+        # ======================== SIMULATOR DEFINTIONS (SOFTWARE INTERFACE) ========================
+        # Create effector objects
+        pumpA = Interface.Effector(simulator._Simulator__plant._effectors['pumpA'])
+        pumpB = Interface.Effector(simulator._Simulator__plant._effectors['pumpB'])
+        valveA = Interface.Effector(simulator._Simulator__plant._effectors['valveA'])
+        valveB = Interface.Effector(simulator._Simulator__plant._effectors['valveB'])
+        heater = Interface.Effector(simulator._Simulator__plant._effectors['heater'])
+
+        # Create LED's objects
+        ledRedA = Interface.LED(simulator._Simulator__plant._effectors['redA'])
+        ledGreenA = Interface.LED(simulator._Simulator__plant._effectors['greenA'])
+        ledRedB = Interface.LED(simulator._Simulator__plant._effectors['redB'])
+        ledGreenB = Interface.LEDGreen(simulator._Simulator__plant._effectors['greenB'])
+        ledGreenM = Interface.LEDGreen(simulator._Simulator__plant._effectors['greenM'])
+        ledYellowM = Interface.LEDYellow(simulator._Simulator__plant._effectors['yellowM'])
+
+        # Create sensors objects
+        colour = Interface.Sensor(simulator._Simulator__plant._sensors['colour'])
+        temperature = Interface.Sensor(simulator._Simulator__plant._sensors['temp'])
+        level = Interface.Sensor(simulator._Simulator__plant._sensors['level'])
+        cup = Interface.PresenceSensor(simulator._Simulator__plant._sensors['presence'])
+
+        # Create UI objects
+        keypad = Interface.Keypad(simulator._Simulator__plant._sensors['keypad'])
+        lcd = Interface.LCD(simulator._Simulator__plant._effectors['lcd'])
+
+        # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
+        controllerObject = CustomController.Controller(
+            pumpA, pumpB, valveA, valveB, heater, ledRedA, ledGreenA, ledRedB,
+            ledGreenB, ledGreenM, ledYellowM, colour, temperature, level, cup, keypad, lcd
+        )
 
     if args.hw:
         Interface = HardwareInterface.HardwareInterface
-
-    # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
-    controllerObject = CustomController.Controller(simulator._Simulator__plant._sensors,
-                                                   simulator._Simulator__plant._effectors)
-
-    if args.hw:
-        # Create control object
-        control = Interface.Factory()
-
-    if args.sim:
-        control = Interface.Factory(controllerObject)
-
-    if args.sim:
-        # ======================== SIMULATOR DEFINTIONS (SOFTWARE INTERFACE) ========================
-        # Create effector objects
-        controllerObject.pumpA = control.make(Interface.Effector, 'pumpA')
-        controllerObject.pumpB = control.make(Interface.Effector, 'pumpB')
-        controllerObject.valveA = control.make(Interface.Effector, 'valveA')
-        controllerObject.valveB = control.make(Interface.Effector, 'valveB')
-        controllerObject.heater = control.make(Interface.Effector, 'heater')
-
-        # Create LED's objects
-        controllerObject.ledRedA = control.make(Interface.LED, 'redA')
-        controllerObject.ledGreenA = control.make(Interface.LED, 'greenA')
-        controllerObject.ledRedB = control.make(Interface.LED, 'redB')
-        controllerObject.ledGreenB = control.make(Interface.LED, 'greenB')
-        controllerObject.ledGreenM = control.make(Interface.LED, 'greenM')
-        controllerObject.ledYellowM = control.make(Interface.LED, 'yellowM')
-
-        # Create sensors objects
-        controllerObject.colour = control.make(Interface.Sensor, 'colour')
-        controllerObject.temperature = control.make(Interface.Sensor, 'temp')
-        controllerObject.level = control.make(Interface.Sensor, 'level')
-        controllerObject.cup = control.make(
-            Interface.PresenceSensor, 'presence')
-
-        controllerObject.lcd = control.make(Interface.LCD, 'lcd')
-        controllerObject.keypad = control.make(Interface.Keypad, 'keypad')
-
-    if args.hw:
         # ======================== LEMONATOR PROXY DEFINTIONS (HARDWARE INTERFACE) ========================
         # Create effector objects
-        controllerObject.pumpA = control.make(Interface.Effector)
-        controllerObject.pumpB = control.make(Interface.Effector)
-        controllerObject.valveA = control.make(Interface.Effector)
-        controllerObject.valveB = control.make(Interface.Effector)
-        controllerObject.heater = control.make(Interface.Effector)
+        pumpA = Interface.Effector()
+        pumpB = Interface.Effector()
+        valveA = Interface.Effector()
+        valveB = Interface.Effector()
+        heater = Interface.Effector()
 
         # Create LED's objects
-        controllerObject.ledRedA = control.make(Interface.LED)
-        controllerObject.ledGreenA = control.make(Interface.LED)
-        controllerObject.ledRedB = control.make(Interface.LED)
-        controllerObject.ledGreenB = control.make(Interface.LED)
-        controllerObject.ledGreenM = control.make(Interface.LED)
-        controllerObject.ledYellowM = control.make(Interface.LED)
+        ledRedA = Interface.LED()
+        ledGreenA = Interface.LED()
+        ledRedB = Interface.LED()
+        ledGreenB = Interface.LEDGreen()
+        ledGreenM = Interface.LEDGreen()
+        ledYellowM = Interface.LEDYellow()
 
         # Create sensors objects
-        controllerObject.colour = control.make(Interface.Sensor)
-        controllerObject.temperature = control.make(Interface.Sensor)
-        controllerObject.level = control.make(Interface.Sensor)
-        controllerObject.cup = control.make(Interface.PresenceSensor)
+        colour = Interface.Sensor()
+        temperature = Interface.Sensor()
+        level = Interface.Sensor()
+        cup = Interface.PresenceSensor()
 
         # Create UI objects
-        controllerObject.lcd = control.make(Interface.LCD)
-        controllerObject.keypad = control.make(Interface.Keypad)
+        keypad = Interface.Keypad()
+        lcd = Interface.LCD()
+
+        # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
+        controllerObject = CustomController.Controller(
+            pumpA, pumpB, valveA, valveB, heater, ledRedA, ledGreenA, ledRedB,
+            ledGreenB, ledGreenM, ledYellowM, colour, temperature, level, cup, keypad, lcd
+        )
 
     controllerObject.prepare()
 
