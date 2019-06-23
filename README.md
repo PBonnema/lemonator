@@ -7,6 +7,8 @@ Team members:
 
 ## CI
 
+Momenteel is er helaas een bug met de build status. Deze update niet goed, voor recente data volg deze [link](https://coveralls.io/github/PBonnema/lemonator).
+
 master: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
 
 dev: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg?branch=dev)](https://coveralls.io/github/PBonnema/lemonator?branch=dev)
