@@ -35,17 +35,20 @@ You will have to setup [bmptk](http://github.com/wovo/bmptk) and [hwlib](http://
 - The branches with the prefix **feature-** are used to develop new features. Eventually, they will be merged to development using pull requests. These pull requests should always be reviewed by a team member who is not assigned onto this specific feature.
 
 ### Testing procedure
-Tests are formulated within the /tests folder. During the development process, testing are performed locally and remotely using Travis.CI
-All test should pass before merging to development and master can be performed. 
+Tests are located within the ./tests folder. During the development process, tests are performed locally and remotely using Travis-CI.
+All test should pass before merging to development and master. 
 
 You may run the following command to test locally:
 ```bash
-@PBonnema ADD COMMAND TO TEST HERE
+/somewhere/on/your/disk/lemonator (dev)
+$ python -m unittest -v
 ```
+
+Or by using any Python test explorer in any IDE.
 
 ## IDE
 We're using Visual Studio Code as our IDE. Please install the following plugins to setup your work environment:
 - autoDocstring; generating python docstrings.
 - C/C++; C++ plugin for VS code.
 - Catch2 and Google Test Explorer; Testing integration within VS code.
-- Python
+- Python 3
