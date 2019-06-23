@@ -12,7 +12,7 @@
 TARGET            := native
 
 # enable exeptions (disabled by default by bmptk)
-PROJECT_CPP_FLAGS += -fexceptions -frtti -pthread -m32 -D_hypot=hypot
+£ PROJECT_CPP_FLAGS += -fexceptions -frtti
 
 # add the RS-232 library
 # SEARCH            += $(RELATIVE)/../RS-232

@@ -2,7 +2,6 @@ from enum import Enum, auto
 
 import Constants
 
-
 class States(Enum):
     IDLE = auto()
     WAITING_FOR_CUP = auto()
@@ -15,7 +14,6 @@ class States(Enum):
     WAITING_USER_SELECTION_TWO = auto()
     WAITING_USER_HEAT_SELECTION = auto()
 
-
 class Faults(Enum):
     DISPENSING_CUP_REMOVED = auto()
     DISPENSING_CUP_OVERFLOW = auto()
@@ -27,8 +25,6 @@ class Faults(Enum):
     NONE = auto()
 
 # This class is used to display a progress spinner during pumping
-
-
 class PrettyProgressIcon():
     def __init__(self, stepChange=2):
         self.icons = ['\\', '|', '/', '-']
@@ -49,7 +45,6 @@ class PrettyProgressIcon():
 
     def get(self):
         return self.icons[self.iconStep]
-
 
 class Controller:
     def __init__(self, pumpA, pumpB, valveA, valveB, heater, ledRedA, ledGreenA, ledRedB,
@@ -87,8 +82,8 @@ class Controller:
         # Set default values
         self.inputTargetLevelWater = ""
         self.inputTargetLevelSyrup = ""
-        self.beginLevelCup = 0.0
-        self.currentLevelCup = 0.0
+        self.beginLevelCup = 0
+        self.currentLevelCup = 0
         self.liquidLevelWater = Constants.liquidMax
         self.liquidLevelSyrup = Constants.liquidMax
         self.inputTargetHeat = ""
@@ -112,7 +107,7 @@ class Controller:
         self.latestKeypress = self.keypad.pop()
 
         # Clear visuals.
-        # self.lcd.clear()
+        self.lcd.clear()
         self.updateLeds()
 
         # If a fault is set, we display the fault to the user. We bypass the statemachine to make sure nothing dangerous will happen.
@@ -127,7 +122,7 @@ class Controller:
 
         # Check if the heater matches the target temperature.
         if self.inputTargetHeat != "" and self.state != States.WAITING_USER_HEAT_SELECTION:
-            self.heaterOnTemp(float(self.inputTargetHeat))
+            self.heaterOnTemp(float(self.inputTargetHeat) / 20.0)
 
         # If the pumps are flowing, validate that there is still enough liquid left. We don't want to be running dry.
         if self.pumpB.isOn() or self.pumpA.isOn():
@@ -137,10 +132,9 @@ class Controller:
             if float(self.liquidLevelWater) <= 0:
                 self.shutFluid()
                 self.fault = Faults.DISPENSING_WATER_SHORTAGE
-        self.lcd.pushString("\x0c")
 
-        #self.lcd.pushString(
-        #   "\x0c   Lemonator v1.0\n--------------------\n")
+        self.lcd.pushString(
+            "\x0c   Lemonator v1.0\n--------------------\n")
 
         # Part of the state machine; state handling.
         if self.state == States.IDLE:
@@ -208,7 +202,7 @@ class Controller:
             f"Syrup: {self.inputTargetLevelSyrup} ml")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelWater.isnumeric() or float(self.inputTargetLevelWater) < 0:
+            if not self.inputTargetLevelWater.isnumeric() or float(self.inputTargetLevelWater) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
 
@@ -232,7 +226,7 @@ class Controller:
         self.lcd.pushString(" ml (#)")
 
         if self.latestKeypress == '#':
-            if not self.inputTargetLevelSyrup.isnumeric() or float(self.inputTargetLevelSyrup) < 0:
+            if not self.inputTargetLevelSyrup.isnumeric() or float(self.inputTargetLevelSyrup) <= 0:
                 self.fault = Faults.SELECTION_INVALID
                 return
             self.inputTargetLevelSyrup = float(self.inputTargetLevelSyrup)
@@ -411,12 +405,11 @@ class Controller:
 
     # Updates the progress procentage and displays its new value on the display.\
     def updateDisplay(self) -> None:
-        if (self.inputTargetLevelWater + self.inputTargetLevelSyrup) > 0:
-            progress = round((
-                (self.level.readValue() - self.beginLevelCup)
-                * Constants.levelVoltageFactor
-                / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
-            if progress <= 100:
-                self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
-            else:
-                self.lcd.pushString(f"      Done!      ")
+        progress = round((
+            (self.level.readValue() - self.beginLevelCup)
+            * Constants.levelVoltageFactor
+            / (self.inputTargetLevelWater + self.inputTargetLevelSyrup)) * 100.0)
+        if progress <= 100:
+            self.lcd.pushString(f"     ({self.progress.get()}) {progress}%")
+        else:
+            self.lcd.pushString(f"      Done!      ")

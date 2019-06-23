@@ -157,19 +157,15 @@ class output_proxy : public hwlib::pin_out {
 private:	
    serial_port & port;		
    std::string s;
-   bool isOn;
 public:   
-  output_proxy( serial_port & port, std::string s ): port( port ), s( s ), isOn(false){}
+   output_proxy( serial_port & port, std::string s ): port( port ), s( s ){}
    
    void set(
       bool b,
-     hwlib::buffering buf = hwlib::buffering::unbuffered 
+	  hwlib::buffering buf = hwlib::buffering::unbuffered 
    ){
       (void) port.transaction( ( b ? "1" : "0" ) + s );
-      isOn = b;
    }
-
-   bool get() { return isOn; }
 };
 
 // remote interface to the lemonator hardware functions via a serial interface

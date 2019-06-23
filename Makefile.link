@@ -41,7 +41,5 @@ SEARCH           += $(TI-SOFTWARE)/pybind11/include
 # set BMPTK to the bmptk subdirectory
 BMPTK            := C:/ti-software/bmptk
 
-# PROJECT_CPP_FLAGS += -fexceptions -frtti -pthread -m32 -D_hypot=hypot
-
 # Defer to the bmptk/Makefile.inc to do the work
 include $(BMPTK)/Makefile.inc
