@@ -1,3 +1,8 @@
+*.elf
+*.map
+*.bin
+*.ld
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -12,6 +17,10 @@
 *.lo
 *.o
 *.obj
+*.bin
+*.elf
+*.ld
+*.map
 
 # Precompiled Headers
 *.gch
@@ -160,3 +169,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Python caching
+simulator/__pycache__/
