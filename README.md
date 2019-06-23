@@ -1,4 +1,3 @@
-
 ## The Lemonator
 
 Team members:
