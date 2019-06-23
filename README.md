@@ -44,7 +44,13 @@ You may run the following command to test locally:
 $ python -m unittest -v
 ```
 
-Or by using any Python test explorer in any IDE.
+Or: 
+```bash
+/somewhere/on/your/disk/lemonator (dev)
+$ coverage run --branch --source ./simulator --omit=./simulator/*.pyc,./simulator/Interface.py,./simulator/main.py -m unittest -v
+```
+
+To also generate a coverage report. You can also use any Python test explorer in any IDE.
 
 ## IDE
 We're using Visual Studio Code as our IDE. Please install the following plugins to setup your work environment:
