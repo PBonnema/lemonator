@@ -73,9 +73,6 @@ class TestStateTransitions(TestCase):
         self.assertFalse(self.valveA.isOn())
         self.assertFalse(self.valveB.isOn())
         self.assertFalse(self.heater.isOn())
-        self.assertFalse(self.cup.readValue())
-
-        self.assertEqual(self.ctl.latestKeypress, None)
 
     def test_controller_init_state_vars(self):
         self.assertEqual(self.ctl.liquidLevelWater, Constants.liquidMax)
@@ -83,6 +80,7 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.ctl.inputTargetLevelWater, "")
         self.assertEqual(self.ctl.inputTargetLevelSyrup, "")
         self.assertEqual(self.ctl.inputTargetHeat, "")
+        self.assertEqual(self.ctl.latestKeypress, None)
 
     def test_controller_init_fault_state(self):
         self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
