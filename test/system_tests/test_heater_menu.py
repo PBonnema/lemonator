@@ -1,6 +1,5 @@
 # pylint: disable=no-self-use, missing-docstring
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock, call, patch
 
 import Constants
 import CustomController
@@ -68,40 +67,35 @@ class TestStateTransitions(TestCase):
         self.sim._Simulator__controller = self.ctl
         self.ctl.prepare()
 
-    def test_controller_init_actuator_and_effector_state(self):
-        self.assertFalse(self.pumpA.isOn())
-        self.assertFalse(self.pumpB.isOn())
-        self.assertFalse(self.valveA.isOn())
-        self.assertFalse(self.valveB.isOn())
-        self.assertFalse(self.heater.isOn())
-        self.assertFalse(self.cup.readValue())
-
-        self.assertEqual(self.ctl.latestKeypress, None)
-
-    def test_controller_init_state_vars(self):
-        self.assertEqual(self.ctl.liquidLevelWater, Constants.liquidMax)
-        self.assertEqual(self.ctl.liquidLevelSyrup, Constants.liquidMax)
-        self.assertEqual(self.ctl.inputTargetLevelWater, "")
-        self.assertEqual(self.ctl.inputTargetLevelSyrup, "")
-        self.assertEqual(self.ctl.inputTargetHeat, "")
-
-    def test_controller_init_fault_state(self):
-        self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
-
-    def test_lcd_is_clear(self):
-        lcdLines = self.lcd.getLines()
-
-        self.assertListEqual(list(lcdLines), [' ' * 20] * 4)
-
-    def test_controller_invalid_key_press(self):
-        self.keypad.push('Z')
-
+    def test_controller_select_too_high_heater(self):
+        self.keypad.push('D')
         updateSim(self.sim)
 
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-    def test_display_idle_state(self):
+        self.vesselMix.setPresence(True)
         updateSim(self.sim)
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "A = Start, B = Stats")
-        self.assertEqual(list(self.lcd.getLines())[3].strip(), "D = Heat")
+        self.keypad.push('1')
+        updateSim(self.sim)
+        self.keypad.push('0')
+        updateSim(self.sim)
+        self.keypad.push('0')
+        updateSim(self.sim)
+        self.keypad.push('#')
+        updateSim(self.sim)
+
+        self.assertEqual(
+            self.ctl.fault, CustomController.Faults.SELECTION_TEMP_TOO_HIGH)
+
+    def test_controller_heater_input(self):
+        self.keypad.push('D')
+        updateSim(self.sim)
+
+        self.vesselMix.setPresence(True)
+        updateSim(self.sim)
+        self.keypad.push('8')
+        updateSim(self.sim)
+        self.keypad.push('9')
+        updateSim(self.sim)
+        self.keypad.push('#')
+        updateSim(self.sim)
+
+        self.assertAlmostEqual(self.ctl.inputTargetHeat, 89.0)
