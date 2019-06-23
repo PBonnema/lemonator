@@ -1,5 +1,3 @@
-master: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
-dev: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg?branch=dev)](https://coveralls.io/github/PBonnema/lemonator?branch=dev)
 ## The Lemonator
 
 Team members:
@@ -7,8 +5,16 @@ Team members:
 - Mike Hilhorst
 - Wiebe van Breukelen
 
+## CI
+
+master: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg)](https://coveralls.io/github/PBonnema/lemonator)
+
+dev: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg?branch=dev)](https://coveralls.io/github/PBonnema/lemonator?branch=dev)
+
 ## Installation
-To pull all the required dependencies, please run the following commands within the shell:"
+Make sure you are running Python 3.7.* 32-bits. The 64-bits edition is known to have issues with pybind and the TDM-GCC-64 compiler.
+
+To pull all the required dependencies, please run the following commands within a shell:"
 
 ```bash
 
@@ -16,6 +22,12 @@ git submodule init
 git submodule update
 
 ```
+
+Then, you will need to install the required compilers:
+  - [TDM-GCC-32](http://tdm-gcc.tdragon.net/download), download version 5.1.0-3 32-bits edition.
+  - [arm-none-eabi toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads), download latest version.
+  
+You will have to setup [bmptk](http://github.com/wovo/bmptk) and [hwlib](http://github.com/wovo/hwlib)(with pybind support) aswell.
 
 ### Branches
 - The code within the **master** branch is considered final. This means that it is well tested and reviewed by all the teammembers.
@@ -26,11 +38,14 @@ git submodule update
 Tests are formulated within the /tests folder. During the development process, testing are performed locally and remotely using Travis.CI
 All test should pass before merging to development and master can be performed. 
 
+You may run the following command to test locally:
+```bash
+@PBonnema ADD COMMAND TO TEST HERE
+```
+
 ## IDE
 We're using Visual Studio Code as our IDE. Please install the following plugins to setup your work environment:
 - autoDocstring; generating python docstrings.
 - C/C++; C++ plugin for VS code.
 - Catch2 and Google Test Explorer; Testing integration within VS code.
-- Clang-format; For automatic formatting.
-- Doxygen Documetation Generator
 - Python
