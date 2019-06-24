@@ -16,7 +16,7 @@ int main(void)
     while (true)
     {
         controller.update();
-        Sleep(250);
+        Sleep(10);
     }
 
     return 0;

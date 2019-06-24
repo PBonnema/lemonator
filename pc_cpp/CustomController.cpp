@@ -33,7 +33,7 @@ void CustomController::update()
 {
     latestKeypress = proxy.p_keypad.getc();
 
-    proxy.p_lcd.putc('\f');
+    //*this.putc('\f');
 
     if (std::stoi(targetHeat) != 0 && state != States::WAITING_USER_HEAT_SELECTION)
     {
@@ -56,10 +56,11 @@ void CustomController::update()
     if (fault != Faults::NONE)
     {
         displayFault(fault);
+        flushLCD();
         return;
     }
 
-    proxy.p_lcd << "\x0c   Lemonator v1.0\n--------------------\n";
+    writeLCD("\x0c   Lemonator v1.0\n--------------------\n");
 
     switch (state)
     {
@@ -86,20 +87,23 @@ void CustomController::update()
         break;
     case States::DISPLAY_STATS:
         displayStatsState();
+        break;
     default:
         break;
     };
+
+    flushLCD();
 }
 
 void CustomController::idleState(void)
 {
-    proxy.p_lcd << "A = Start, B = Stats\n     C = Heat";
+    writeLCD("A = Start, B = Stats\n     C = Heat");
 
     switch (latestKeypress)
     {
     case 'A':
-        inputTargetLevelWater = std::string();
-        inputTargetLevelSirup = std::string();
+        inputTargetLevelWater = std::string("0");
+        inputTargetLevelSirup = std::string("0");
         beginLevelCup = proxy.p_distance.read_mm();
         currentLevelCup = beginLevelCup;
         state = States::WAITING_USER_SELECTION_ONE;
@@ -110,8 +114,8 @@ void CustomController::idleState(void)
     case 'C':
         targetHeat = std::string("0");
         state = States::WAITING_USER_HEAT_SELECTION;
+        break;
     default:
-        //fault = Faults::SELECTION_INVALID;
         break;
     }
 }
@@ -124,22 +128,22 @@ void CustomController::waitingForCupState(void)
     }
     else
     {
-        proxy.p_lcd << "Please place a cup\nto continue...\n";
+        writeLCD("Please place a cup\nto continue...\n");
     }
 }
 
 void CustomController::enterSelectionOneState(void)
 {
-    proxy.p_lcd << "Water: " << inputTargetLevelWater;
 
     if (isdigit(latestKeypress))
     {
-        proxy.p_lcd << latestKeypress;
         inputTargetLevelWater += latestKeypress;
     }
 
-    proxy.p_lcd << "ml (#)\n";
-    proxy.p_lcd << "Sirup: " << inputTargetLevelSirup << " ml";
+    writeLCD("Water: " + inputTargetLevelWater);
+
+    writeLCD(" ml (#)\n");
+    writeLCD("Sirup: " + inputTargetLevelSirup + " ml");
 
     if (latestKeypress == '#')
     {
@@ -161,16 +165,15 @@ void CustomController::enterSelectionOneState(void)
 
 void CustomController::enterSelectionTwoState(void)
 {
-    proxy.p_lcd << "Water: " << inputTargetLevelWater << " ml\n";
-    proxy.p_lcd << "Sirup: " << inputTargetLevelSirup << " ml\n";
-
     if (isdigit(latestKeypress))
     {
-        proxy.p_lcd.putc(latestKeypress);
         inputTargetLevelSirup += latestKeypress;
     }
 
-    proxy.p_lcd << "ml (#)";
+    writeLCD("Water: " + inputTargetLevelWater + " ml\n");
+    writeLCD("Sirup: " + inputTargetLevelSirup + " ml\n");
+
+    writeLCD(" ml (#)");
 
     if (latestKeypress == '#')
     {
@@ -192,17 +195,13 @@ void CustomController::enterSelectionTwoState(void)
 
 void CustomController::enterheatSelectionState(void)
 {
-    proxy.p_lcd << "Heat: " << targetHeat;
-
     if (isdigit(latestKeypress))
     {
-        proxy.p_lcd.putc(latestKeypress);
         targetHeat += latestKeypress;
     }
 
-    std::cout << targetHeat << std::flush;
-
-    proxy.p_lcd << " °C (#)";
+    writeLCD("Heat: " + targetHeat + " C (#)");
+    writeLCD("\n");
 
     if (latestKeypress == '#')
     {
@@ -217,6 +216,8 @@ void CustomController::enterheatSelectionState(void)
         else
         {
             state = States::IDLE;
+            flushLCD();
+            writeLCD('\f');
         }
     }
 }
@@ -227,14 +228,16 @@ void CustomController::dispensingWaterState(void)
     {
         startWaterPump();
         updateDisplay();
+        flushLCD();
 
-        if (((proxy.p_distance.read_mm() - currentLevelCup) * constants.levelVoltageFactor) - std::stoi(inputTargetLevelWater) >= 0)
-        {
-            shutFluids();
-            currentLevelCup = proxy.p_distance.read_mm();
-            liquidLevelWater -= std::stoi(inputTargetLevelWater);
-            state = States::DISPENSING_SIRUP;
-        }
+        //if (((proxy.p_distance.read_mm() - currentLevelCup) * constants.levelVoltageFactor) - std::stoi(inputTargetLevelWater) >= 0)
+        //{
+        Sleep(250 * std::stoi(inputTargetLevelWater));
+        shutFluids();
+        currentLevelCup = proxy.p_distance.read_mm();
+        liquidLevelWater -= std::stoi(inputTargetLevelWater);
+        state = States::DISPENSING_SIRUP;
+        //}
     }
 }
 
@@ -244,22 +247,26 @@ void CustomController::dispensingSirupState(void)
     {
         startSirupPump();
         updateDisplay();
+        flushLCD();
 
-        if (((proxy.p_distance.read_mm() - currentLevelCup) * constants.levelVoltageFactor) - std::stoi(inputTargetLevelSirup) >= 0)
-        {
-            shutFluids();
-            currentLevelCup = proxy.p_distance.read_mm();
-            liquidLevelSirup -= std::stoi(inputTargetLevelSirup);
-            state = States::IDLE;
-        }
+        //if (((proxy.p_distance.read_mm() - currentLevelCup) * constants.levelVoltageFactor) - std::stoi(inputTargetLevelSirup) >= 0)
+        //{
+        Sleep(250 * std::stoi(inputTargetLevelSirup));
+        shutFluids();
+        currentLevelCup = proxy.p_distance.read_mm();
+        liquidLevelSirup -= std::stoi(inputTargetLevelSirup);
+        state = States::IDLE;
+        //}
     }
 }
 
 void CustomController::displayStatsState(void)
 {
-    proxy.p_lcd << (std::to_string(liquidLevelWater).c_str()) << "ml <|> ";
-    proxy.p_lcd << (std::to_string(liquidLevelSirup).c_str()) << "ml\n";
-    proxy.p_lcd << "Press \'#\' to exit.";
+    writeLCD((std::to_string(static_cast<int>(liquidLevelWater)).c_str()));
+    writeLCD("ml <|> ");
+    writeLCD((std::to_string(static_cast<int>(liquidLevelSirup)).c_str()));
+    writeLCD("ml\n");
+    writeLCD("Press \'#\' to exit.");
 
     if (latestKeypress == '#')
     {
@@ -267,32 +274,32 @@ void CustomController::displayStatsState(void)
     }
 }
 
-void CustomController::displayFault(Faults fault)
+void CustomController::displayFault(Faults &fault)
 {
-    proxy.p_lcd << "\x0c        ERROR\n--------------------\n";
+    writeLCD("\x0c        ERROR\n--------------------\n");
 
     switch (fault)
     {
     case Faults::DISPENSING_CUP_REMOVED:
-        proxy.p_lcd << "Cup removed.";
+        writeLCD("Cup removed.");
         break;
     case Faults::DISPENSING_WATER_SHORTAGE:
-        proxy.p_lcd << "Water shortage.";
+        writeLCD("Water shortage.");
         break;
     case Faults::DISPENSING_SIRUP_SHORTAGE:
-        proxy.p_lcd << "Sirup shortage.";
+        writeLCD("Sirup shortage.");
         break;
     case Faults::SELECTION_FLUID_TOO_HIGH:
-        proxy.p_lcd << "Input too high.";
+        writeLCD("Input too high.");
         break;
     case Faults::SELECTION_INVALID:
-        proxy.p_lcd << "Invalid selection.";
+        writeLCD("Invalid selection.");
         break;
     default:
         break;
     }
 
-    proxy.p_lcd << "\nPress \'#\' to continue.";
+    writeLCD("\nPress \'#\' to continue.");
 
     if (latestKeypress == '#')
     {
@@ -301,16 +308,21 @@ void CustomController::displayFault(Faults fault)
     }
 }
 
-void CustomController::heaterOnTemp(int targetTemprature)
+void CustomController::heaterOnTemp(int targetTemperature)
 {
-    if (proxy.p_reflex.get())
+    float heaterTemp = readHeaterTemp();
+
+    //std::cout << "Heater target temperature: " << targetTemperature << std::endl;
+    //std::cout << "Current temperature: " << heaterTemp << std::endl;
+
+    if (validateCupApperance())
     {
-        if (proxy.p_temperature.read_mc() < targetTemprature - 0.5)
+        if (heaterTemp < targetTemperature - 0.5)
         {
             //heater.set(true);
             proxy.p_heater.set(true);
         }
-        else if (proxy.p_temperature.read_mc() > targetTemprature + 0.5)
+        else if (heaterTemp > targetTemperature + 0.5)
         {
             //heater.set(false);
             proxy.p_heater.set(false);
@@ -349,10 +361,19 @@ bool CustomController::validateCupApperance(void)
     }
     else
     {
-        shutFluids();
-        fault = Faults::DISPENSING_CUP_REMOVED;
-        return false;
+
+        // Cup sensor is broken, we need to return always true.
+        //shutFluids();
+        //fault = Faults::DISPENSING_CUP_REMOVED;
+        //return false;
+
+        return true;
     }
+}
+
+float CustomController::readHeaterTemp(void)
+{
+    return proxy.p_temperature.read_mc() / 1000.0;
 }
 
 void CustomController::shutFluids(void)
@@ -388,17 +409,57 @@ void CustomController::updateLeds(void)
 
 void CustomController::updateDisplay(void)
 {
-    int buffer = (proxy.p_distance.read_mm() - beginLevelCup) * constants.levelVoltageFactor / (std::stoi(inputTargetLevelWater) + std::stoi(inputTargetLevelSirup)) * 100;
-    if (buffer <= 100)
+    if (proxy.p_water_pump.get())
     {
-        //lcd.pushString(buffer + "%");
-        proxy.p_lcd << buffer << '%';
+        writeLCD("Dispensing water...");
+    }
+    else if (proxy.p_sirup_pump.get())
+    {
+        writeLCD("Dispensing sirup...");
     }
     else
     {
-        //lcd.pushString("      Done!      ");
-        proxy.p_lcd << "      Done!      ";
+        writeLCD("Heating up...");
     }
+}
+
+void CustomController::writeLCD(const std::string &s)
+{
+    if (lcdBufferOld.size() >= (lcdBufferNew.size() + s.size()))
+    {
+        if (s.compare(lcdBufferOld.substr(lcdBufferNew.size(), s.size())) == 0)
+        {
+            mayLCDRefresh = false;
+        }
+        else
+        {
+            mayLCDRefresh = true;
+        }
+    }
+
+    lcdBufferNew += s;
+
+    //std::cout << "old: " << lcdBufferOld << std::endl;
+    //std::cout << "new: " << lcdBufferNew << std::endl;
+}
+
+void CustomController::writeLCD(const char ch)
+{
+    std::cout << "Char: " << ch << std::endl
+              << std::flush;
+    writeLCD(std::to_string(ch));
+}
+
+void CustomController::flushLCD(bool force)
+{
+    if (force || mayLCDRefresh)
+    {
+        proxy.p_lcd << '\f';
+        proxy.p_lcd << lcdBufferNew;
+    }
+
+    lcdBufferOld = lcdBufferNew;
+    lcdBufferNew.clear();
 }
 
 CustomController::~CustomController()

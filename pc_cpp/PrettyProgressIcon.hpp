@@ -3,10 +3,11 @@
 class PrettyProgressIcon
 {
 private:
-    char* icons = "\\|/-";
+    char *icons = "\\|/-";
     int iconStep;
     int updateStep;
     int stepChange;
+
 public:
     PrettyProgressIcon(int stepChange = 2);
     ~PrettyProgressIcon();
