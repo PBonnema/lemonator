@@ -218,6 +218,7 @@ void CustomController::enterheatSelectionState(void)
             state = States::IDLE;
             flushLCD();
             writeLCD('\f');
+            Sleep(20);
         }
     }
 }
@@ -454,7 +455,9 @@ void CustomController::flushLCD(bool force)
 {
     if (force || mayLCDRefresh)
     {
+        Sleep(10);
         proxy.p_lcd << '\f';
+        Sleep(10);
         proxy.p_lcd << lcdBufferNew;
     }
 
