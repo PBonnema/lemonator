@@ -11,12 +11,14 @@ int main(void)
     //controller.update();
     //PrettyProgressIcon icon;
 
-    std::cout << "Hello world" << std::endl;
+    std::cout << "Resetting machine..." << std::endl;
+
+    Sleep(2000);
 
     while (true)
     {
         controller.update();
-        Sleep(250);
+        Sleep(50);
     }
 
     return 0;

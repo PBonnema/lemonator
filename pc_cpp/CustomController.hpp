@@ -3,15 +3,14 @@
 #include <cctype>
 #include "lemonator_proxy.hpp"
 
-
 struct Constants
 {
     const float levelVoltageFactor = 625.0;
     const float liquidMax = 2000.0;
 };
 
-
-enum class States: int {
+enum class States : int
+{
     IDLE,
     WAITING_FOR_CUP,
     WAITING_USER_SELECTION_ONE,
@@ -24,7 +23,8 @@ enum class States: int {
     WAITING_USER_HEAT_SELECTION
 };
 
-enum class Faults: int {
+enum class Faults : int
+{
     DISPENSING_CUP_REMOVED,
     DISPENSING_CUP_OVERFLOW,
     DISPENSING_WATER_SHORTAGE,
@@ -35,15 +35,11 @@ enum class Faults: int {
     NONE
 };
 
-
-
 class CustomController
 {
 private:
-
     //int COM = 2;
 
-    
     States state;
     Faults fault;
     /* Effector waterPump;
@@ -73,21 +69,20 @@ private:
     float liquidLevelWater;
     float liquidLevelSirup;
 
-    
     std::string inputTargetLevelWater;
     std::string inputTargetLevelSirup;
     std::string targetHeat;
-
+    std::string lcdBufferOld;
+    std::string lcdBufferNew;
     char latestKeypress;
+    bool mayLCDRefresh = true;
 
-
-    
 public:
-    //CustomController(Effector waterPumpObject, Effector sirupPumpObject, Effector waterValveObject, Effector sirupValveObject, Effector heaterObject, 
+    //CustomController(Effector waterPumpObject, Effector sirupPumpObject, Effector waterValveObject, Effector sirupValveObject, Effector heaterObject,
     //Sensor tempratureObject, Sensor levelObject, Sensor cupObject, LEDGreen LedGreenObject, LEDYellow LedYellowObject, LCD lcdObject, Keypad keypadObject);
     CustomController();
     ~CustomController(void);
-    
+
     void update(void);
     void idleState(void);
     void waitingForCupState(void);
@@ -97,7 +92,7 @@ public:
     void dispensingWaterState(void);
     void dispensingSirupState(void);
     void displayStatsState(void);
-    void displayFault(Faults fault);
+    void displayFault(Faults &fault);
     void heaterOnTemp(int targetTemperature);
     void startWaterPump(void);
     void startSirupPump(void);
@@ -105,7 +100,10 @@ public:
     void shutFluids(void);
     void updateLeds(void);
     void updateDisplay(void);
+    float readHeaterTemp(void);
 
+    void writeLCD(const std::string &s);
+    void writeLCD(const char ch);
 
-
+    void flushLCD(bool force = false);
 };
