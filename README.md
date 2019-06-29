@@ -11,6 +11,8 @@ master: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev
 
 dev: [![Build Status](https://travis-ci.com/PBonnema/lemonator.svg?branch=dev)](https://travis-ci.com/PBonnema/lemonator)[![Coverage Status](https://coveralls.io/repos/github/PBonnema/lemonator/badge.svg?branch=dev)](https://coveralls.io/github/PBonnema/lemonator?branch=dev)
 
+You may view the coverage reports over here: [link](https://coveralls.io/github/PBonnema/lemonator).
+
 ## Installation
 Make sure you are running Python 3.7.* 32-bits. The 64-bits edition is known to have issues with pybind and the TDM-GCC-64 compiler.
 
