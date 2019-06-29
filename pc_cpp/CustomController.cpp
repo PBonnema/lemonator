@@ -208,10 +208,12 @@ void CustomController::enterheatSelectionState(void)
         if (std::stoi(targetHeat) < 0)
         {
             fault = Faults::SELECTION_INVALID;
+            targetHeat = std::string("0");
         }
         else if (std::stoi(targetHeat) >= 100)
         {
             fault = Faults::SELECTION_TEMP_TOO_HIGH;
+            targetHeat = std::string("0");
         }
         else
         {
