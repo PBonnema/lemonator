@@ -61,38 +61,32 @@ if __name__ == "__main__":
         )
 
     if args.hw:
-        import lemonator
-        print("Starting lemonator...")
-        hw = lemonator.lemonator(2)  # COM3
-
-        time.sleep(3)
-
         Interface = HardwareInterface.HardwareInterface
         # ======================== LEMONATOR PROXY DEFINTIONS (HARDWARE INTERFACE) ========================
         # Create effector objects
-        pumpA = Interface.Pump(hw, 'A')
-        pumpB = Interface.Pump(hw, 'B')
-        valveA = Interface.Valve(hw, 'A')
-        valveB = Interface.Valve(hw, 'B')
-        heater = Interface.Heater(hw)
+        pumpA = Interface.Effector()
+        pumpB = Interface.Effector()
+        valveA = Interface.Effector()
+        valveB = Interface.Effector()
+        heater = Interface.Effector()
 
         # Create LED's objects
         ledRedA = Interface.LED()
         ledGreenA = Interface.LED()
         ledRedB = Interface.LED()
-        ledGreenB = Interface.LEDGreen(hw)
-        ledGreenM = Interface.LEDGreen(hw)
-        ledYellowM = Interface.LEDYellow(hw)
+        ledGreenB = Interface.LEDGreen()
+        ledGreenM = Interface.LEDGreen()
+        ledYellowM = Interface.LEDYellow()
 
         # Create sensors objects
-        colour = Interface.ColourSensor(hw)
-        temperature = Interface.TemperatureSensor(hw)
-        level = Interface.LevelSensor(hw)
-        cup = Interface.PresenceSensor(hw)
+        colour = Interface.Sensor()
+        temperature = Interface.Sensor()
+        level = Interface.Sensor()
+        cup = Interface.PresenceSensor()
 
         # Create UI objects
-        keypad = Interface.Keypad(hw)
-        lcd = Interface.LCD(hw)
+        keypad = Interface.Keypad()
+        lcd = Interface.LCD()
 
         # Here is the Controller created with a custom interface, here you can use a SoftwareInterface or a HardwareInterface
         controllerObject = CustomController.Controller(
@@ -120,7 +114,7 @@ if __name__ == "__main__":
     if args.hw:
         while True:
             try:
-                time.sleep(0.05)
+                time.sleep(0.5)
                 controllerObject.update()
 
                 print(controllerObject.state)

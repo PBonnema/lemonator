@@ -1,10 +1,8 @@
 # pylint: disable=no-self-use, missing-docstring
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock, call, patch
 
 import Constants
 import CustomController
-
 import Simulator
 import SimulatorInterface
 
@@ -69,120 +67,6 @@ class TestStateTransitions(TestCase):
         self.sim._Simulator__controller = self.ctl
         self.ctl.prepare()
 
-    def test_controller_init_actuator_and_effector_state(self):
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-        self.assertFalse(self.pumpA.isOn())
-        self.assertFalse(self.pumpB.isOn())
-        self.assertFalse(self.valveA.isOn())
-        self.assertFalse(self.valveB.isOn())
-        self.assertFalse(self.heater.isOn())
-        self.assertFalse(self.cup.readValue())
-
-        self.assertEqual(self.ctl.latestKeypress, None)
-
-    def test_controller_init_state_vars(self):
-        self.assertEqual(self.ctl.liquidLevelWater, Constants.liquidMax)
-        self.assertEqual(self.ctl.liquidLevelSyrup, Constants.liquidMax)
-        self.assertEqual(self.ctl.inputTargetLevelWater, "")
-        self.assertEqual(self.ctl.inputTargetLevelSyrup, "")
-        self.assertEqual(self.ctl.inputTargetHeat, "")
-
-    def test_controller_init_fault_state(self):
-        self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
-
-    def test_lcd_is_clear(self):
-        lcdLines = self.lcd.getLines()
-        self.assertIsInstance(lcdLines, map)
-
-        for lcdLine in lcdLines:
-            self.assertEqual(lcdLine, ' ' * 20)
-
-    def test_controller_invalid_key_press(self):
-        self.keypad.push('Z')
-
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-    def test_controller_start_press(self):
-        # Press the A/start button
-        self.keypad.push('A')
-
-        updateSim(self.sim)
-
-        self.assertEqual(
-            self.ctl.state, CustomController.States.WAITING_FOR_CUP)
-
-    def test_controller_wait_for_cup(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.assertEqual(
-            self.ctl.state, CustomController.States.WAITING_USER_SELECTION_ONE)
-
-    def test_controller_select_amount(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.keypad.push('2')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.inputTargetLevelSyrup, 20)
-        self.assertEqual(self.ctl.inputTargetLevelWater, 50)
-
-        self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
-
-    def test_controller_select_zero_amount(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(
-            self.ctl.fault, CustomController.Faults.SELECTION_INVALID)
-
-    def test_controller_select_too_high_heater(self):
-        self.keypad.push('D')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-        self.keypad.push('1')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(
-            self.ctl.fault, CustomController.Faults.SELECTION_TEMP_TOO_HIGH)
-
     def test_controller_dispensing_liquid_updates_vessel(self):
         self.keypad.push('A')
         updateSim(self.sim)
@@ -208,134 +92,8 @@ class TestStateTransitions(TestCase):
         for _ in range(150):
             updateSim(self.sim)
 
-
         self.assertEqual(self.ctl.liquidLevelWater, 1900)
         self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-    def test_controller_dispensing_fault_cup_removed(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.keypad.push('2')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(False)
-        updateSim(self.sim)
-
-        self.assertEqual(
-            self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
-
-    def test_controller_view_stats_without_dispense_action(self):
-        self.keypad.push('B')
-        updateSim(self.sim)
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.fault, CustomController.Faults.NONE)
-        self.assertEqual(self.ctl.state, CustomController.States.DISPLAY_STATS)
-
-        self.assertEqual(list(self.lcd.getLines())
-                         [2].strip(), str(int(Constants.liquidMax)) + " ml <|> " + str(int(Constants.liquidMax)) + " ml")
-
-    def test_controller_select_wrong_amount_water(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_WATER_SHORTAGE)
-
-    def test_controller_select_wrong_amount_syrup(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('5')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.fault, CustomController.Faults.DISPENSING_SYRUP_SHORTAGE)
-
-
-    def test_controller_check_stats_after_dispense(self):
-        self.keypad.push('A')
-        updateSim(self.sim)
-
-        self.vesselMix.setPresence(True)
-        updateSim(self.sim)
-        self.keypad.push('2')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-        self.keypad.push('1')
-        updateSim(self.sim)
-        self.keypad.push('0')
-        updateSim(self.sim)
-        self.keypad.push('#')
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.state, CustomController.States.DISPENSING_WATER)
-
-        for _ in range(100):
-            updateSim(self.sim)
-
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-
-        self.keypad.push('B')
-        updateSim(self.sim)
-        updateSim(self.sim)
-
-        self.assertEqual(self.ctl.state, CustomController.States.DISPLAY_STATS)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "1980 ml <|> 1990 ml")
-
-        self.assertEqual(self.ctl.liquidLevelWater, 1980)
-        self.assertEqual(self.ctl.liquidLevelSyrup, 1990)
 
     def test_controller_cup_contents(self):
         self.keypad.push('A')
@@ -365,62 +123,37 @@ class TestStateTransitions(TestCase):
 
         self.assertAlmostEqual(self.level.readValue(), 280/Constants.levelVoltageFactor, 1)
 
-
-    def test_controller_heater_input(self):
-        self.keypad.push('D')
+    def test_controller_dispensing_fault_cup_removed(self):
+        self.keypad.push('A')
         updateSim(self.sim)
 
         self.vesselMix.setPresence(True)
         updateSim(self.sim)
-        self.keypad.push('8')
+
+        self.keypad.push('5')
         updateSim(self.sim)
-        self.keypad.push('9')
+        self.keypad.push('0')
         updateSim(self.sim)
         self.keypad.push('#')
         updateSim(self.sim)
 
-        self.assertAlmostEqual(self.ctl.inputTargetHeat, 89.0)
-
-    def test_display_idle_state(self):
+        self.keypad.push('2')
         updateSim(self.sim)
-        self.assertEqual(self.ctl.state, CustomController.States.IDLE)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "A = Start, B = Stats")
-        self.assertEqual(list(self.lcd.getLines())[3].strip(), "D = Heat")
-
-    def test_display_waiting_for_cup_state(self):
-        self.keypad.push('A')
+        self.keypad.push('0')
+        updateSim(self.sim)
+        self.keypad.push('#')
         updateSim(self.sim)
 
         self.vesselMix.setPresence(False)
         updateSim(self.sim)
-        self.assertEqual(self.ctl.state, CustomController.States.WAITING_FOR_CUP)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "Please place a cup")
-        self.assertEqual(list(self.lcd.getLines())[3].strip(), "to continue...")
 
-    def test_display_dispensing_cup_removed_fault(self):#
+        self.assertEqual(
+            self.ctl.fault, CustomController.Faults.DISPENSING_CUP_REMOVED)
+
+    def test_display_dispensing_cup_removed_fault(self):
         self.ctl.fault = CustomController.Faults.DISPENSING_CUP_REMOVED
         updateSim(self.sim)
         self.assertEqual(list(self.lcd.getLines())[2].strip(), "Cup removed.")
-
-    def test_display_dispensing_water_shortage_fault(self):#
-        self.ctl.fault = CustomController.Faults.DISPENSING_WATER_SHORTAGE
-        updateSim(self.sim)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "Water shortage.")
-
-    def test_display_dispensing_syrup_shortage_fault(self):#
-        self.ctl.fault = CustomController.Faults.DISPENSING_SYRUP_SHORTAGE
-        updateSim(self.sim)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "Syrup shortage.")
-
-    def test_display_selection_temp_too_high_fault(self):#
-        self.ctl.fault = CustomController.Faults.SELECTION_TEMP_TOO_HIGH
-        updateSim(self.sim)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "Input too high.")
-
-    def test_display_selection_invalid_fault(self):#
-        self.ctl.fault = CustomController.Faults.SELECTION_INVALID
-        updateSim(self.sim)
-        self.assertEqual(list(self.lcd.getLines())[2].strip(), "Invalid selection.")
 
     def test_start_water_pump_pumpA_already_on_only_one_can_be_on_true(self):
         self.pumpA.switchOn()
@@ -438,14 +171,14 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.pumpB.isOn(), False)
         self.assertEqual(self.valveB.isOn(), True)
 
-    def test_start_water_pump_only_one_can_be_on_true(self):#
+    def test_start_water_pump_only_one_can_be_on_true(self):
         self.ctl.startWaterPump(onlyOneCanBeOn=True)
         self.assertEqual(self.pumpA.isOn(), True)
         self.assertEqual(self.valveA.isOn(), False)
         self.assertEqual(self.pumpB.isOn(), False)
         self.assertEqual(self.valveB.isOn(), True)
 
-    def test_start_syrup_pump_only_one_can_be_on_true(self):#
+    def test_start_syrup_pump_only_one_can_be_on_true(self):
         self.ctl.startSyrupPump(onlyOneCanBeOn=True)
         self.assertEqual(self.pumpB.isOn(), True)
         self.assertEqual(self.valveB.isOn(), False)
@@ -480,12 +213,12 @@ class TestStateTransitions(TestCase):
         self.assertEqual(self.pumpA.isOn(), True)
         self.assertEqual(self.valveA.isOn(), False)
 
-    def test_start_water_pump_only_one_can_be_on_false(self):#
+    def test_start_water_pump_only_one_can_be_on_false(self):
         self.ctl.startWaterPump(onlyOneCanBeOn=False)
         self.assertEqual(self.pumpA.isOn(), True)
         self.assertEqual(self.valveA.isOn(), False)
 
-    def test_start_syrup_pump_only_one_can_be_on_false(self):#
+    def test_start_syrup_pump_only_one_can_be_on_false(self):
         self.ctl.startSyrupPump(onlyOneCanBeOn=False)
         self.assertEqual(self.pumpB.isOn(), True)
         self.assertEqual(self.valveB.isOn(), False)
